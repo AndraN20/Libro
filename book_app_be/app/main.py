@@ -22,7 +22,7 @@ app.include_router(health_check.router)
 # Include router-ul de conversie PDF
 app.include_router(
     conversion.router,
-    prefix="/api/v1/pdf",
+    prefix="/convert",
     tags=["PDF Operations"]
 )
 
