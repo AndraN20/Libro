@@ -1,0 +1,11 @@
+{
+    "github.copilot.enable": {
+        "*": true,
+        "plaintext": false,
+        "markdown": false,
+        "scminput": false
+    },
+    "python.analysis.extraPaths": [
+        "./book_app_api/app"
+    ]
+}

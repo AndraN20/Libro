@@ -1,0 +1,5 @@
+https://medium.com/@kasra.heidarinezhad/deploying-hugging-face-models-in-azure-ml-5941a25142a0
+adaugare model ai in azure
+
+hugging face model - led-base-16384
+

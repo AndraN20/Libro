@@ -2,3 +2,5 @@ articole/
 design/
 epub/
 pdf/
+book_app_api/test_files/
+book_app_api/.env

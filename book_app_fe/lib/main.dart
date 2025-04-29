@@ -1,8 +1,5 @@
-import 'package:dart_pdf_reader/dart_pdf_reader.dart';
 import 'package:flutter/material.dart';
-import 'dart:typed_data';
 import 'package:flutter/services.dart' show rootBundle;
-import 'dart:io';
 
 Future<String> readText() async {
   return await rootBundle.loadString('assets/my_text.txt');
