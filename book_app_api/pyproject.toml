@@ -1,0 +1,29 @@
+[project]
+name = "book-app-api"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "AndraN20",email = "151191603+AndraN20@users.noreply.github.com"}
+]
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi (>=0.115.12,<0.116.0)",
+    "uvicorn[standard] (>=0.34.2,<0.35.0)",
+    "ebooklib (>=0.18,<0.19)",
+    "dotenv (>=0.9.9,<0.10.0)",
+    "sqlalchemy (>=2.0.40,<3.0.0)",
+    "google-cloud-storage (>=3.1.0,<4.0.0)",
+    "psycopg2-binary (>=2.9.10,<3.0.0)",
+    "alembic (>=1.15.2,<2.0.0)",
+    "python-dotenv (>=1.1.0,<2.0.0)",
+    "apscheduler (>=3.11.0,<4.0.0)",
+    "email-validator (>=2.2.0,<3.0.0)",
+    "python-multipart (>=0.0.20,<0.0.21)",
+    "pymupdf (>=1.25.5,<2.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

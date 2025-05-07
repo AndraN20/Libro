@@ -1,11 +1,10 @@
 from sqlalchemy import ForeignKey, Enum, ForeignKeyConstraint
-from book_app_api.app.core.database import Base
+from app.core.database_config import Base
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from app.entities.enums.annotation_type import AnnotationType
 
-from book_app_api.app.entities.enums.annotation_type import AnnotationType
-
-class Annotation(Base):
-    __tablename__ = "annotation"
+class Interaction(Base):
+    __tablename__ = "interaction"
     __table_args__ = (
         ForeignKeyConstraint(
             ['user_id', 'book_id'],
@@ -25,5 +24,5 @@ class Annotation(Base):
     user_id: Mapped[int] = mapped_column()
     book_id: Mapped[int] = mapped_column()
 
-    progress: Mapped["Progress"] = relationship(back_populates="annotations")
+    progress: Mapped["Progress"] = relationship("Progress",back_populates="interactions",lazy="select")
     

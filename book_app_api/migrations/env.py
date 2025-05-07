@@ -1,24 +1,22 @@
 from logging.config import fileConfig
-import os
-import sys
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
-from book_app_api.app.core.database import Base, DATABASE_URL
-from book_app_api.app.entities.provider import Provider
-from book_app_api.app.entities.book import Book
-from book_app_api.app.entities.progress import Progress
-from book_app_api.app.entities.annotation import Annotation
-from book_app_api.app.entities.user import User
-from book_app_api.app.entities.chapter import Chapter
-
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
+from dotenv import load_dotenv
+import os
 from alembic import context
+from app.core.database_config import Base
+import app.entities
+
+load_dotenv()
+
+db_url = os.getenv("DATABASE_URL")
+if not db_url:
+    raise ValueError("DATABASE_URL not set .env")
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
-config.set_main_option("sqlalchemy.url", DATABASE_URL)
-
+config.set_main_option("sqlalchemy.url", db_url)
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
 if config.config_file_name is not None:
@@ -29,7 +27,7 @@ if config.config_file_name is not None:
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 target_metadata = Base.metadata
-_ = [Book, User, Annotation, Progress, Provider, Chapter]
+
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
@@ -85,5 +83,3 @@ if context.is_offline_mode():
     run_migrations_offline()
 else:
     run_migrations_online()
-
-

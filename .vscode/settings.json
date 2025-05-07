@@ -6,6 +6,7 @@
         "scminput": false
     },
     "python.analysis.extraPaths": [
-        "./book_app_api/app"
-    ]
+        "./book_app_api"
+    ],
+    "cmake.ignoreCMakeListsMissing": true
 }
