@@ -1,12 +1,14 @@
 from app.core.database_config import get_db
+from app.core.security import get_current_user
 from app.dto.interaction_dto import InteractionCreateDto, InteractionDto, InteractionUpdateDto
 from app.entities.enums.annotation_type import AnnotationType
 from app.services.interaction_service import InteractionService
 from sqlalchemy.orm import Session
 from fastapi import APIRouter, Depends
 
-
-router = APIRouter()
+router = APIRouter(
+    dependencies=[Depends(get_current_user)]
+)
 
 def get_interaction_service(db: Session = Depends(get_db)) -> InteractionService:
     return InteractionService(db)

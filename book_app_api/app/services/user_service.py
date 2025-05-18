@@ -1,5 +1,7 @@
 from app.repositories.user_repository import UserRepository
-from app.dto.user_dto import UserUpdateDto
+from app.dto.user_dto import UserLoginDto, UserUpdateDto
+from app.utils.jwt_utils import create_access_token
+from app.utils.password_utils import hash_password, verify_password
 from sqlalchemy.orm import Session
 from app.mappers.user_mapper import to_entity,to_dto
 
@@ -39,3 +41,17 @@ class UserService:
             self.user_repository.delete_user(user)
         except Exception as e:
             raise ValueError(f"user delete failed: {e}")
+        
+
+    def register_user(self, user_create_dto):
+        existing_user = self.user_repository.get_user_by_email(user_create_dto.email)
+        if existing_user:
+            raise ValueError("Email already registered")
+        user_create_dto.password = hash_password(user_create_dto.password)
+        return self.add_user(user_create_dto)
+
+    def login_user(self, login_dto: UserLoginDto):
+        user = self.user_repository.get_user_by_email(login_dto.email)
+        if not user or not verify_password(login_dto.password, user.password):
+            raise ValueError("Invalid credentials")
+        return create_access_token({"sub": str(user.id)})

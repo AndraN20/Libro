@@ -1,6 +1,11 @@
 from typing import List
+import uuid
+from app.utils.conversion_utils.epub_builder import add_cover
+from app.utils.conversion_utils.parser import pdf_to_epub_chapters
 from fastapi import UploadFile
-import fitz  # PyMuPDF library for PDF processing
+from ebooklib import epub
+import fitz  
+from io import BytesIO
 
 class ConversionService:
     def __init__(self):
@@ -11,11 +16,28 @@ class ConversionService:
 
         doc = fitz.open(stream=contents, filetype="pdf")
 
-        text_parts: List[str] = []
+        book = epub.EpubBook()
 
-        for page_num in range(min(3, len(doc))):
-            page = doc.load_page(page_num)
-            text = page.get_text()
-            text_parts.append(text)
+        book.set_identifier(str(uuid.uuid4()))
+        book.set_title(file.filename or "Unknown Title")
+        book.set_language("en")
 
-        return "\n--- Page Break ---\n".join(text_parts)
+        chapters, toc = pdf_to_epub_chapters(doc)
+        for item in chapters:
+            book.add_item(item)
+
+        book.toc = toc
+        has_cover = add_cover(doc,book)
+        if has_cover:
+            book.spine = ['cover','nav'] + chapters
+        book.add_item(epub.EpubNcx())
+        book.add_item(epub.EpubNav())
+
+        
+
+
+        buffer = BytesIO()
+        epub.write_epub(buffer, book)
+        buffer.seek(0)
+
+        return buffer

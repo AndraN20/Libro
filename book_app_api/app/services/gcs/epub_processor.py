@@ -1,5 +1,5 @@
 from app.services.gcs.gcs_service import GCSService
-from app.utils.epub_utils import get_epub_metadata
+from app.utils.epub_storage_utils import get_epub_metadata
 from app.core.database_config import get_db
 from app.services.book_service import BookService
 from app.dto.book_dto import BookCreateDto

@@ -1,7 +1,7 @@
 from app.api.controllers import book_controller, interaction_controller, progress_controller, user_controller
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api import conversion, health_check
+from app.api import auth_controller, conversion, health_check
 from app.core.database_config import Base, engine 
 from app.services.gcs.scheduler_service import start_scheduler
 import uvicorn
@@ -53,6 +53,11 @@ app.include_router(
 app.include_router(
     conversion.router,
     tags=["PDF to EPUB Conversion"],
+)
+
+app.include_router(
+    auth_controller.router,
+    tags=["Authentication"]
 )
 
 

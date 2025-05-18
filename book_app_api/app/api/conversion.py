@@ -1,25 +1,27 @@
 from http.client import HTTPException
+import os
+from app.core.database_config import get_db
+from app.core.security import get_current_user
+from sqlalchemy.orm import Session
 from app.services.conversion.pdf_conversion_service import ConversionService
 from fastapi import APIRouter, Depends, UploadFile, File
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 
-router = APIRouter()
+router = APIRouter(
+    dependencies=[Depends(get_current_user)]
+)
 
-def get_conversion_service() -> ConversionService:
-    return ConversionService()
+def get_conversion_service(db: Session = Depends(get_db)) -> ConversionService:
+    return ConversionService(db)
 
 @router.post("/convert")
-def convert_pdf_to_txt(file: UploadFile = File(...), conversion_service: ConversionService = Depends(get_conversion_service)):
+async def convert_pdf_to_txt(file: UploadFile = File(...), conversion_service: ConversionService = Depends(get_conversion_service)):
     if file.content_type != "application/pdf":
             raise HTTPException(status_code=400, detail="file must be a PDF")
     
-    text = conversion_service.convert(file)
-    return JSONResponse(content={"text": text[:1000]})
+    epub_io = conversion_service.convert(file)
 
-    # epub_path = conversion_service.convert(file)
-
-    # return FileResponse(
-    #         path=epub_path,
-    #         filename="converted.epub",
-    #         media_type="application/epub+zip")
-
+    output_filename = os.path.splitext(file.filename)[0] + ".epub"
+    return StreamingResponse(epub_io, media_type="application/epub+zip", headers={
+        "Content-Disposition": f"attachment; filename={output_filename}"
+    })

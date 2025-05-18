@@ -5,7 +5,6 @@ class UserCreateDto(BaseModel):
     username: str
     email: EmailStr
     password: str
-    profile_picture_base64: Optional[bytes] = None
     model_config = ConfigDict(from_attributes=True)
 
 class UserUpdateDto(BaseModel):
@@ -20,3 +19,7 @@ class UserDto(BaseModel):
     email: EmailStr
     profile_picture_base64: Optional[bytes] = None
     model_config = ConfigDict(from_attributes=True)
+
+class UserLoginDto(BaseModel):
+    email: EmailStr
+    password: str

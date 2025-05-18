@@ -1,10 +1,13 @@
+from app.core.security import get_current_user
 from app.dto.progress_dto import ProgressDto, ProgressUpdateDto
 from app.services.progress_service import ProgressService
 from app.core.database_config import get_db
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-router = APIRouter()
+router = APIRouter(
+    dependencies=[Depends(get_current_user)]
+)
 
 def get_progress_service(db: Session = Depends(get_db)) -> ProgressService:
     return ProgressService(db)

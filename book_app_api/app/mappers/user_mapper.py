@@ -9,7 +9,7 @@ def to_entity(user_create_dto: UserCreateDto) -> User:
         username = user_create_dto.username,
         email = user_create_dto.email,
         password = user_create_dto.password,
-        profile_picture = base64.b64decode(user_create_dto.profile_picture_base64) if user_create_dto.profile_picture_base64 else None
+        profile_picture =  None
     )
 
 def to_dto(user: User) -> UserDto:
