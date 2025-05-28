@@ -27,3 +27,9 @@ class BookRepository:
             .filter(Book.title == title)\
             .filter(Book.author == author)\
             .first()
+    
+    def get_books_by_user_id(self, user_id: int) -> List[Book]:
+        return self.db.query(Book)\
+            .join(Book.progress)\
+            .filter(Book.progress.any(user_id=user_id))\
+            .all()

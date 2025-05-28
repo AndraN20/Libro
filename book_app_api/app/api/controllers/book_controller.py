@@ -1,4 +1,4 @@
-from http.client import HTTPException
+from fastapi import HTTPException
 from app.core.security import get_current_user
 from app.dto.book_dto import BookCoverDto
 from app.entities.user import User
@@ -31,3 +31,10 @@ def get_book_by_id(book_id: int, book_service: BookService = Depends(get_book_se
     else:
         raise HTTPException(status_code=404, detail="book not found")
     
+@router.get("/books/user/{user_id}", response_model=list[BookDto])
+def get_books_by_user_id(user_id: int, book_service: BookService = Depends(get_book_service)):
+    books = book_service.get_books_by_user_id(user_id)
+    if books:
+        return books
+    else:
+        raise HTTPException(status_code=404, detail="no books found for this user")

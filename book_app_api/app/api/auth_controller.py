@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.dto.user_dto import UserCreateDto, UserLoginDto, UserDto
 from app.services.user_service import UserService
@@ -20,7 +20,9 @@ async def register(user_dto: UserCreateDto,user_service: UserService = Depends(g
 def login(login_dto: UserLoginDto, user_service: UserService = Depends(get_user_service)):
     try:
         token = user_service.login_user(login_dto)
+        print(f"Generated token: {token}")  
         return {"access_token": token, "token_type": "bearer"}
+        
     except ValueError as e:
         raise HTTPException(status_code=401, detail=str(e))
 

@@ -1,11 +1,11 @@
-from http.client import HTTPException
+from fastapi import HTTPException
 import os
 from app.core.database_config import get_db
 from app.core.security import get_current_user
 from sqlalchemy.orm import Session
 from app.services.conversion.pdf_conversion_service import ConversionService
 from fastapi import APIRouter, Depends, UploadFile, File
-from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
+from fastapi.responses import StreamingResponse
 
 router = APIRouter(
     dependencies=[Depends(get_current_user)]

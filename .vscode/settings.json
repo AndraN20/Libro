@@ -8,5 +8,6 @@
     "python.analysis.extraPaths": [
         "./book_app_api"
     ],
-    "cmake.ignoreCMakeListsMissing": true
+    "cmake.ignoreCMakeListsMissing": true,
+    "zencoder.enableRepoIndexing": true
 }

@@ -1,58 +1,31 @@
+import 'package:book_app/config/secure_storage.dart';
+import 'package:book_app/routing/app_router.dart';
+import 'package:book_app/utils/token_utils.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-Future<String> readText() async {
-  return await rootBundle.loadString('assets/my_text.txt');
-}
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
-void main() => runApp(const DefaultTextStyleApp());
-
-class DefaultTextStyleApp extends StatelessWidget {
-  const DefaultTextStyleApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(
-        useMaterial3: true,
-        brightness: Brightness.light,
-        colorSchemeSeed: Colors.purple,
-      ),
-      home: const DefaultTextStyleExample(),
-    );
+  // Clear invalid token at startup
+  final token = await SecureStorage.readToken();
+  if (token == null || isTokenExpired(token)) {
+    await SecureStorage.deleteToken();
   }
+
+  runApp(ProviderScope(child: BookApp()));
 }
 
-class DefaultTextStyleExample extends StatelessWidget {
-  const DefaultTextStyleExample({super.key});
+class BookApp extends ConsumerWidget {
+  const BookApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("PDF Reader Example")),
-      body: Center(
-        child: FutureBuilder<String>(
-          future: readText(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const CircularProgressIndicator();
-            } else if (snapshot.hasError) {
-              return Text('Error: ${snapshot.error}');
-            } else {
-              return Container(
-                width: 300,
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(border: Border.all()),
-                child: Text(
-                  snapshot.data ?? 'No Data',
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 5,
-                ),
-              );
-            }
-          },
-        ),
-      ),
+  Widget build(BuildContext context, WidgetRef ref) {
+    final router = ref.watch(appRouterProvider);
+    return MaterialApp.router(
+      routerConfig: router,
+      title: 'Book App',
+      debugShowCheckedModeBanner: false,
     );
   }
 }
