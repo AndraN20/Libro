@@ -1,7 +1,12 @@
-import 'package:book_app/config/constants.dart';
-import 'package:book_app/providers/is_logged_in_provider.dart';
-import 'package:book_app/ui/auth/widgets/login_screen.dart';
-import 'package:book_app/ui/books/widgets/home_screen.dart';
+import 'package:book_app/core/constants/navigation_keys.dart';
+import 'package:book_app/core/constants/route_names.dart';
+import 'package:book_app/core/providers/is_logged_in_provider.dart';
+import 'package:book_app/core/screens/main_screen.dart';
+import 'package:book_app/features/auth/presentation/screens/login_screen.dart';
+import 'package:book_app/features/home/presentation/screens/home_screen.dart'; // asigură-te că ai importat corect
+import 'package:book_app/features/library/presentation/screens/library_screen.dart';
+import 'package:book_app/features/profile/presentation/screens/profile_screen.dart';
+import 'package:book_app/features/search/presentation/screens/search_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -13,7 +18,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     navigatorKey: navigatorKey,
     initialLocation: RouteNames.loading,
     routes: [
-      GoRoute(path: RouteNames.home, builder: (_, __) => const HomeScreen()),
       GoRoute(path: RouteNames.login, builder: (_, __) => const LoginScreen()),
       GoRoute(
         path: RouteNames.loading,
@@ -21,6 +25,17 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             (_, __) => const Scaffold(
               body: Center(child: CircularProgressIndicator()),
             ),
+      ),
+
+      ShellRoute(
+        builder: (_, __, child) => MainScreen(child: child),
+        routes: [
+          GoRoute(path: '/', redirect: (_, __) => '/home'),
+          GoRoute(path: '/home', builder: (_, __) => const HomeScreen()),
+          GoRoute(path: '/library', builder: (_, __) => const LibraryScreen()),
+          GoRoute(path: '/search', builder: (_, __) => const SearchScreen()),
+          GoRoute(path: '/profile', builder: (_, __) => const ProfileScreen()),
+        ],
       ),
     ],
     redirect: (context, state) {

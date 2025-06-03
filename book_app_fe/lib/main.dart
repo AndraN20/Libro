@@ -1,6 +1,7 @@
-import 'package:book_app/config/secure_storage.dart';
+import 'package:book_app/core/storage/secure_storage.dart';
+import 'package:book_app/core/theme/app_theme.dart';
 import 'package:book_app/routing/app_router.dart';
-import 'package:book_app/utils/token_utils.dart';
+import 'package:book_app/core/utils/token_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -26,6 +27,7 @@ class BookApp extends ConsumerWidget {
       routerConfig: router,
       title: 'Book App',
       debugShowCheckedModeBanner: false,
+      theme: AppTheme.lightTheme,
     );
   }
 }
