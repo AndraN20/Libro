@@ -33,3 +33,9 @@ class BookRepository:
             .join(Book.progress)\
             .filter(Book.progress.any(user_id=user_id))\
             .all()
+    
+    def get_books_by_title(self, query: str) -> list[Book]:
+        return self.db.query(Book).filter(Book.title.ilike(f"%{query}%")).all()
+
+    def get_books_by_genre(self, genre: str) -> list[Book]:
+        return self.db.query(Book).filter(Book.genre.ilike(f"%{genre}%")).all()

@@ -24,3 +24,23 @@ final userBooksProvider = FutureProvider.family<List<Book>, int>((
 ) async {
   return ref.watch(bookRepositoryProvider).getUserBooks(userId);
 });
+
+final searchBooksProvider = FutureProvider.family<List<Book>, String>((
+  ref,
+  query,
+) async {
+  if (query.isEmpty) return [];
+  final repo = ref.watch(bookRepositoryProvider);
+  return await repo.searchBooks(query);
+});
+
+final genreBooksProvider = FutureProvider.family<List<Book>, String>((
+  ref,
+  genre,
+) async {
+  final repo = ref.watch(bookRepositoryProvider);
+  if (genre.toLowerCase() == 'all') {
+    return await repo.getBooks();
+  }
+  return await repo.getBooksByGenre(genre);
+});

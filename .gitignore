@@ -9,3 +9,4 @@ book_app_api/test_files/
 book_app_api/.env
 book_app_api/gcs_key.json
 book_app_fe/.vscode/
+.vscode/

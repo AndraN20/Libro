@@ -15,4 +15,14 @@ class BookRepository {
     final dtos = await service.fetchUserBooks(userId);
     return dtos.map((e) => e.toDomain()).toList();
   }
+
+  Future<List<Book>> searchBooks(String query) async {
+    final dtos = await service.searchBooks(query);
+    return dtos.map((e) => e.toDomain()).toList();
+  }
+
+  Future<List<Book>> getBooksByGenre(String genre) async {
+    final dtos = await service.getBooksByGenre(genre);
+    return dtos.map((e) => e.toDomain()).toList();
+  }
 }

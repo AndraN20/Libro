@@ -15,4 +15,21 @@ class BookService {
     final response = await _dio.get('/books/users/$userId');
     return (response.data as List).map((e) => BookDto.fromJson(e)).toList();
   }
+
+  Future<List<BookDto>> searchBooks(String query) async {
+    final response = await _dio.get(
+      '/books/search',
+      queryParameters: {'query': query},
+    );
+    return (response.data as List)
+        .map((json) => BookDto.fromJson(json))
+        .toList();
+  }
+
+  Future<List<BookDto>> getBooksByGenre(String genre) async {
+    final response = await _dio.get('/books/genre/$genre');
+    return (response.data as List)
+        .map((json) => BookDto.fromJson(json))
+        .toList();
+  }
 }
