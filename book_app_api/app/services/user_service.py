@@ -4,6 +4,8 @@ from app.utils.jwt_utils import create_access_token
 from app.utils.password_utils import hash_password, verify_password
 from sqlalchemy.orm import Session
 from app.mappers.user_mapper import to_entity,to_dto
+import base64
+
 
 class UserService:
     def __init__(self,db:Session):
@@ -25,13 +27,6 @@ class UserService:
         except Exception as e:
             raise ValueError(f"user save failed: {e}")
         
-    def edit_user(self, user_id: int, user_update_dto:UserUpdateDto):
-        user_update = user_update_dto.dict(exclude_unset=True)
-        try:
-            updated_user = self.user_repository.edit_user(user_id, user_update)
-            return to_dto(updated_user)
-        except Exception as e:
-            raise ValueError(f"user update failed: {e}")
         
     def delete_user(self, user_id: int):
         user = self.user_repository.get_user_by_id(user_id)
@@ -42,6 +37,25 @@ class UserService:
         except Exception as e:
             raise ValueError(f"user delete failed: {e}")
         
+    def edit_user(self, user_id: int, user_update_dto: UserUpdateDto):
+        user = self.user_repository.get_user_by_id(user_id)
+        if not user:
+            raise ValueError("User not found")
+
+        if user_update_dto.username:
+            user.username = user_update_dto.username
+
+        if user_update_dto.profile_picture_base64:
+            try:
+                user.profile_picture = base64.b64decode(user_update_dto.profile_picture_base64)
+            except Exception as e:
+                raise ValueError("Invalid base64 image data") from e
+
+        try:
+            updated_user = self.user_repository.edit_user(user_id, user)
+            return to_dto(updated_user)
+        except Exception as e:
+            raise ValueError(f"user update failed: {e}")
 
     def register_user(self, user_create_dto):
         existing_user = self.user_repository.get_user_by_email(user_create_dto.email)

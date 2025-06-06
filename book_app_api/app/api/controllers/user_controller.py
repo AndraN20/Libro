@@ -26,7 +26,8 @@ def add_user(user_create_dto: UserCreateDto, user_service: UserService = Depends
 
 @router.patch("/users/{user_id}", response_model=UserDto)
 def edit_user(user_id: int, user_update_dto: UserUpdateDto, user_service: UserService = Depends(get_user_service)):
-    return user_service.edit_user(user_id, user_update_dto)
+    edited = user_service.edit_user(user_id, user_update_dto)
+    return edited
 
 @router.delete("/users/{user_id}")
 def delete_user(user_id: int, user_service: UserService = Depends(get_user_service)):

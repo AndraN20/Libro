@@ -1,7 +1,7 @@
 
 import base64
 from app.entities.user import User
-from app.dto.user_dto import UserCreateDto, UserDto, UserUpdateDto
+from app.dto.user_dto import UserCreateDto, UserDto
 
 
 def to_entity(user_create_dto: UserCreateDto) -> User:

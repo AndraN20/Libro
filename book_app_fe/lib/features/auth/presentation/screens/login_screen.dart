@@ -3,6 +3,7 @@ import 'package:book_app/features/auth/presentation/viewmodels/auth_provider.dar
 import 'package:book_app/features/auth/presentation/widgets/login_form.dart';
 import 'package:book_app/features/auth/presentation/widgets/sign_up_form.dart';
 import 'package:book_app/features/auth/presentation/widgets/start_buttons.dart';
+import 'package:book_app/features/user/presentation/viewmodels/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -116,6 +117,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (!mounted) return;
 
     if (success) {
+      ref.invalidate(fetchedUserProvider);
+
       context.go('/home');
     } else {
       _showSnackBar('Login failed');
@@ -136,6 +139,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       if (!mounted) return;
 
       if (didLogin) {
+        ref.invalidate(fetchedUserProvider);
         context.go('/home');
       } else {
         _showSnackBar('Account created, but login failed');

@@ -1,7 +1,7 @@
 import 'package:book_app/core/storage/secure_storage.dart';
 import 'package:book_app/features/auth/data/auth_repository.dart';
 import 'package:book_app/features/auth/data/auth_service.dart';
-import 'package:book_app/features/auth/domain/entities/user.dart';
+import 'package:book_app/features/user/domain/entities/user.dart';
 import 'package:book_app/features/auth/presentation/viewmodels/auth_view_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:book_app/core/api/dio_provider.dart';

@@ -11,7 +11,7 @@ class AuthViewModel extends StateNotifier<bool> {
 
   Future<bool> login(String email, String password) async {
     try {
-      state = true; // Set loading state
+      state = true; 
       final token = await _repo.login(email, password);
       if (token != null) {
         await SecureStorage.writeToken(token);
@@ -22,19 +22,19 @@ class AuthViewModel extends StateNotifier<bool> {
     } catch (e) {
       rethrow;
     } finally {
-      state = false; // Reset loading state
+      state = false; 
     }
   }
 
   Future<bool> signup(String email, String username, String password) async {
     try {
-      state = true; // loading
+      state = true;
       await _repo.signup(email, username, password);
       return true;
     } catch (e) {
       return false;
     } finally {
-      state = false; // done loading
+      state = false;
     }
   }
 

@@ -8,6 +8,7 @@ class EditProfileDialog extends StatelessWidget {
   final VoidCallback onSave;
   final VoidCallback onCancel;
   final VoidCallback onImagePick;
+  final bool isLoading;
 
   const EditProfileDialog({
     super.key,
@@ -16,6 +17,7 @@ class EditProfileDialog extends StatelessWidget {
     required this.onSave,
     required this.onCancel,
     required this.onImagePick,
+    required this.isLoading,
   });
 
   @override
@@ -67,8 +69,15 @@ class EditProfileDialog extends StatelessWidget {
             backgroundColor: Colors.white,
             foregroundColor: AppColors.darkPurple,
           ),
-          onPressed: onSave,
-          child: const Text('Save'),
+          onPressed: isLoading ? null : onSave,
+          child:
+              isLoading
+                  ? const SizedBox(
+                    height: 18,
+                    width: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                  : const Text('Save'),
         ),
       ],
     );

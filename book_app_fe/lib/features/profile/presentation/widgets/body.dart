@@ -1,5 +1,6 @@
+import 'dart:convert';
 import 'dart:typed_data';
-import 'package:book_app/features/auth/domain/entities/user.dart';
+import 'package:book_app/features/user/domain/entities/user.dart';
 import 'package:flutter/material.dart';
 import 'package:book_app/core/constants/colors.dart';
 
@@ -22,12 +23,13 @@ class ProfileBody extends StatelessWidget {
                 radius: 50,
                 backgroundColor: AppColors.grey,
                 backgroundImage:
-                    user.profilePictureBase64 != null &&
-                            user.profilePictureBase64!.isNotEmpty
-                        ? MemoryImage(user.profilePictureBase64!)
-                        : const AssetImage('assets/default_profile.png')
-                            as ImageProvider,
+                    newProfileImage != null
+                        ? MemoryImage(newProfileImage!)
+                        : (user.profilePictureBase64 != null
+                            ? MemoryImage(user.profilePictureBase64!)
+                            : const AssetImage('assets/default_profile.png')),
               ),
+
               const SizedBox(height: 15),
               Text(
                 '${user.username} 📚',

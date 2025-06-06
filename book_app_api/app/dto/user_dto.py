@@ -9,15 +9,14 @@ class UserCreateDto(BaseModel):
 
 class UserUpdateDto(BaseModel):
     username: Optional[str] = None
-    email: Optional[EmailStr] = None
-    profile_picture_base64 : Optional[bytes] = None
+    profile_picture_base64 : Optional[str] = None
     model_config = ConfigDict(from_attributes=True)
 
 class UserDto(BaseModel):
     id: int
     username: str
     email: EmailStr
-    profile_picture_base64: Optional[bytes] = None
+    profile_picture_base64: Optional[str] = None
     model_config = ConfigDict(from_attributes=True)
 
 class UserLoginDto(BaseModel):
