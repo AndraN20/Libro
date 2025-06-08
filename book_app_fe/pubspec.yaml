@@ -42,6 +42,11 @@ dependencies:
   jwt_decoder: ^2.0.1
   flutter_svg: ^2.0.10+1
   image_picker: ^1.0.4
+  path_provider: ^2.1.2
+  epub_view: ^3.2.0
+  epubx: ^4.0.0
+  flutter_html: ^3.0.0
+  html: ^0.15.6
 
 dev_dependencies:
   flutter_test:

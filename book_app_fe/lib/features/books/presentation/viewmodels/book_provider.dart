@@ -1,5 +1,6 @@
 import 'package:book_app/features/books/data/book_repository.dart';
-import 'package:book_app/features/books/data/book_service.dart';
+import 'package:book_app/features/books/data/services/book_download_service.dart';
+import 'package:book_app/features/books/data/services/book_service.dart';
 import 'package:book_app/features/books/domain/entities/book.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:book_app/core/api/dio_provider.dart';
@@ -43,4 +44,9 @@ final genreBooksProvider = FutureProvider.family<List<Book>, String>((
     return await repo.getBooks();
   }
   return await repo.getBooksByGenre(genre);
+});
+
+final bookDownloadServiceProvider = Provider<BookDownloadService>((ref) {
+  final dio = ref.watch(dioProvider);
+  return BookDownloadService(dio);
 });

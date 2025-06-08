@@ -14,7 +14,7 @@ router = APIRouter(
 def get_conversion_service(db: Session = Depends(get_db)) -> ConversionService:
     return ConversionService(db)
 
-@router.post("/convert")
+@router.post("/books/convert")
 async def convert_pdf_to_txt(file: UploadFile = File(...), conversion_service: ConversionService = Depends(get_conversion_service)):
     if file.content_type != "application/pdf":
             raise HTTPException(status_code=400, detail="file must be a PDF")

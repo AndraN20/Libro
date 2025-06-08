@@ -47,3 +47,9 @@ def search_books_by_title(query: str, book_service: BookService = Depends(get_bo
 @router.get("/books/genre/{genre}", response_model=list[BookDto])
 def get_books_by_genre(genre: str, book_service: BookService = Depends(get_book_service)):
     return book_service.get_books_by_genre(genre)
+
+@router.get("/books/{book_id}/signed-url")
+def get_signed_url(book_id: int, book_service: BookService = Depends(get_book_service)):
+    
+    signed_url = book_service.generate_signed_url(book_id)
+    return {"signed_url": signed_url}

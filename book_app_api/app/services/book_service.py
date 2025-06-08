@@ -4,6 +4,7 @@ from app.mappers.book_mapper import to_book_cover_dto, to_dto, to_entity
 from app.dto.book_dto import BookCoverDto
 from app.entities.book import Book
 from app.dto.book_dto import BookCreateDto
+from app.services.gcs.signed_url_service import generate_signed_url_from_full_url
 from sqlalchemy.orm import Session
 from typing import List, Optional
 
@@ -52,3 +53,9 @@ class BookService:
             return self.book_repository.get_all_books()
         books = self.book_repository.get_books_by_genre(genre)
         return [to_dto(book) for book in books]
+    
+    def generate_signed_url(self, book_id: int) -> str:
+        book = self.book_repository.get_book_by_id(book_id)
+        if not book:
+            raise ValueError("Book not found")
+        return generate_signed_url_from_full_url(book.book_url)

@@ -20,6 +20,11 @@ class BookCoverDto {
     coverBase64: json['cover_base64'],
   );
 
-  Book toDomain() =>
-      Book(id: id, title: title, author: author, coverBase64: coverBase64);
+  Book toDomain() => Book(
+    id: id,
+    title: title,
+    author: author,
+    coverBase64: coverBase64,
+    bookUrl: '',
+  );
 }

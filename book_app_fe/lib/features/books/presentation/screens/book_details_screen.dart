@@ -1,14 +1,26 @@
-import 'package:book_app/features/books/domain/entities/book.dart';
+import 'dart:io';
+import 'package:book_app/features/books/presentation/screens/epub_reader_page_view.dart';
+import 'package:book_app/features/books/presentation/viewmodels/book_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:book_app/features/books/domain/entities/book.dart';
 
-class BookDetailsScreen extends StatelessWidget {
+class BookDetailsScreen extends ConsumerStatefulWidget {
   final Book book;
 
   const BookDetailsScreen({super.key, required this.book});
 
   @override
+  ConsumerState<BookDetailsScreen> createState() => _BookDetailsScreenState();
+}
+
+class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
+  bool isLoading = false;
+
+  @override
   Widget build(BuildContext context) {
-    final cover = book.decodedCover;
+    final cover = widget.book.decodedCover;
+    final downloadService = ref.read(bookDownloadServiceProvider);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F8F8),
@@ -45,18 +57,50 @@ class BookDetailsScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             Text(
-              book.title,
+              widget.book.title,
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             Text(
-              book.author,
+              widget.book.author,
               style: const TextStyle(fontSize: 14, color: Colors.grey),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () {
-                // Start Reading - action goes here
+              onPressed: () async {
+                setState(() => isLoading = true);
+
+                final filePath = await downloadService.downloadBookFromUrl(
+                  widget.book.id,
+                  '${widget.book.title}-${widget.book.author}'.replaceAll(
+                    ' ',
+                    '_',
+                  ),
+                );
+
+                if (filePath == null) {
+                  setState(() => isLoading = false);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Failed to download the book."),
+                    ),
+                  );
+                  return;
+                }
+
+                final bytes = await File(filePath).readAsBytes();
+
+                if (!context.mounted) return;
+
+                setState(() => isLoading = false);
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => EpubReaderPageView(epubBytes: bytes),
+                  ),
+                );
               },
+
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF5F5BD1),
                 shape: RoundedRectangleBorder(
@@ -67,13 +111,23 @@ class BookDetailsScreen extends StatelessWidget {
                   vertical: 10,
                 ),
               ),
-              child: const Text("Start Reading"),
+              child:
+                  isLoading
+                      ? const SizedBox(
+                        height: 18,
+                        width: 18,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                      : const Text("Start Reading"),
             ),
             const SizedBox(height: 20),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Text(
-                book.description ?? 'No description available.',
+                widget.book.description ?? 'No description available.',
                 style: const TextStyle(fontSize: 14, height: 1.5),
                 textAlign: TextAlign.center,
               ),

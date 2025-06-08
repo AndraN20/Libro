@@ -10,6 +10,7 @@ class Book {
   final DateTime? date;
   final String? language;
   final String? genre;
+  final String bookUrl;
 
   Book({
     required this.id,
@@ -20,6 +21,7 @@ class Book {
     this.date,
     this.language,
     this.genre,
+    required this.bookUrl,
   });
 
   Uint8List? get decodedCover {

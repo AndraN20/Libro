@@ -14,7 +14,8 @@ def to_dto(book:Book) -> BookDto:
         genre = book.genre,
         description = book.description,
         cover_base64 = base64.b64encode(book.cover_data).decode('utf-8') if book.cover_data else None,
-        language = book.language
+        language = book.language,
+        book_url = book.book_url
     )
 
 def to_entity(book_dto: BookDto) -> Book:
@@ -26,7 +27,8 @@ def to_entity(book_dto: BookDto) -> Book:
         genre = book_dto.genre,
         description = book_dto.description,
         cover_data = base64.b64decode(book_dto.cover_base64) if book_dto.coperta_base64 else None,
-        language = book_dto.language
+        language = book_dto.language,
+        book_url = book_dto.book_url
     )
 
 def to_book_cover_dto(book: Book) -> BookCoverDto:
@@ -46,5 +48,5 @@ def to_entity(book_create_dto: BookCreateDto) -> Book:
         genre = book_create_dto.genre,
         description = book_create_dto.description,
         cover_data = base64.b64decode(book_create_dto.cover_data) if book_create_dto.cover_data else None,
-        language = book_create_dto.language
+        language = book_create_dto.language,
     )
