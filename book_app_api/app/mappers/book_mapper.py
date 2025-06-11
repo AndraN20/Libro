@@ -15,7 +15,8 @@ def to_dto(book:Book) -> BookDto:
         description = book.description,
         cover_base64 = base64.b64encode(book.cover_data).decode('utf-8') if book.cover_data else None,
         language = book.language,
-        book_url = book.book_url
+        book_url = book.book_url,
+        user_id = book.user_id
     )
 
 def to_entity(book_dto: BookDto) -> Book:
@@ -47,6 +48,6 @@ def to_entity(book_create_dto: BookCreateDto) -> Book:
         date = book_create_dto.date,
         genre = book_create_dto.genre,
         description = book_create_dto.description,
-        cover_data = base64.b64decode(book_create_dto.cover_data) if book_create_dto.cover_data else None,
+        cover_data = book_create_dto.cover_data if book_create_dto.cover_data else None,
         language = book_create_dto.language,
     )

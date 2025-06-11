@@ -1,3 +1,5 @@
+from app.entities.user import User
+from app.services.book_service import BookService
 from fastapi import HTTPException
 import os
 from app.core.database_config import get_db
@@ -11,17 +13,24 @@ router = APIRouter(
     dependencies=[Depends(get_current_user)]
 )
 
+
 def get_conversion_service(db: Session = Depends(get_db)) -> ConversionService:
-    return ConversionService(db)
+    book_service = BookService(db)
+    return ConversionService(book_service)
 
 @router.post("/books/convert")
-async def convert_pdf_to_txt(file: UploadFile = File(...), conversion_service: ConversionService = Depends(get_conversion_service)):
+async def convert_pdf_to_epub(
+    file: UploadFile = File(...),
+    user: User = Depends(get_current_user),
+    conversion_service: ConversionService = Depends(get_conversion_service),
+):
     if file.content_type != "application/pdf":
-            raise HTTPException(status_code=400, detail="file must be a PDF")
-    
-    epub_io = conversion_service.convert(file)
+        raise HTTPException(status_code=400, detail="file must be a PDF")
+  
+    epub_io, book_id = conversion_service.convert(file, user.id)
 
-    output_filename = os.path.splitext(file.filename)[0] + ".epub"
+    output_filename = f"{book_id}.epub"
     return StreamingResponse(epub_io, media_type="application/epub+zip", headers={
         "Content-Disposition": f"attachment; filename={output_filename}"
     })
+

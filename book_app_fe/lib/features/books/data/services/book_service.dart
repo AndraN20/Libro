@@ -1,3 +1,4 @@
+import 'package:book_app/features/books/data/models/book_create_dto.dart';
 import 'package:book_app/features/books/data/models/book_dto.dart';
 import 'package:dio/dio.dart';
 
@@ -31,5 +32,11 @@ class BookService {
     return (response.data as List)
         .map((json) => BookDto.fromJson(json))
         .toList();
+  }
+
+  Future<BookDto> addBook(BookCreateModel model) async {
+    final response = await _dio.post('/books', data: model.toJson());
+
+    return BookDto.fromJson(response.data);
   }
 }

@@ -39,3 +39,10 @@ class BookRepository:
 
     def get_books_by_genre(self, genre: str) -> list[Book]:
         return self.db.query(Book).filter(Book.genre.ilike(f"%{genre}%")).all()
+
+    def delete_book(self, book_id: int):
+        book = self.db.query(Book).filter(Book.id == book_id).first()
+        if not book:
+            return None
+        self.db.delete(book)
+        self.db.commit()

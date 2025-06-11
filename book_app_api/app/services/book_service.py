@@ -59,3 +59,8 @@ class BookService:
         if not book:
             raise ValueError("Book not found")
         return generate_signed_url_from_full_url(book.book_url)
+    
+    def delete_book(self, book_id: int):
+        if not self.book_repository.get_book_by_id(book_id):
+            raise ValueError("Book not found")
+        self.book_repository.delete_book(book_id)

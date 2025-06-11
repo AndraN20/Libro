@@ -6,7 +6,7 @@ from typing import List
 class Book(Base):
     __tablename__ = "book"
     id: Mapped[int] = mapped_column(primary_key = True, autoincrement=True)
-    book_url: Mapped[str] = mapped_column(nullable=False)
+    book_url: Mapped[str] = mapped_column(nullable=True)
    
     genre: Mapped[str] = mapped_column(nullable=True)
     description: Mapped[str] = mapped_column( nullable=True)
@@ -15,6 +15,7 @@ class Book(Base):
     author: Mapped[str] = mapped_column(String(255), nullable=False)
     date: Mapped[str] = mapped_column(nullable=True)
     language: Mapped[str] = mapped_column(nullable=True)
+    user_id: Mapped[int] = mapped_column(nullable=True)
 
     progress: Mapped[List["Progress"]] = relationship("Progress",back_populates="book",lazy="select")
     

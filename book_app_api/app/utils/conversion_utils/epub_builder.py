@@ -1,8 +1,10 @@
+import io
 from app.utils.conversion_utils.cover_utils import extract_cover
 from ebooklib import epub
 from typing import List, Set, Tuple
 import re
 import os
+from PIL import Image
 
 
 def sanitize_filename(title: str) -> str:
@@ -45,64 +47,49 @@ def add_to_toc(toc: List, part_title: str, chapter: epub.EpubHtml):
     else:
         toc.append(chapter)
 
-def add_cover(doc, book: epub.EpubBook):
+def add_cover(doc, book: epub.EpubBook) -> tuple[bool, bytes | None]:
     try:
         cover_bytes = extract_cover(doc)
         if not cover_bytes:
-            return
+            return False, None
         
-        cover_directory = os.path.join(os.path.dirname(__file__), "temp_covers")
-        os.makedirs(cover_directory, exist_ok=True)
-        cover_path = os.path.join(cover_directory, "cover.jpg")
-        with open(cover_path, "wb") as f:
-            f.write(cover_bytes)
-        
-        book.set_cover("images/cover.jpg", cover_bytes)
+        # book.set_cover("images/cover.jpg", cover_bytes)
 
         cover_image_item = epub.EpubItem(
-                    uid="cover-img",
-                    file_name="images/cover.jpg",
-                    media_type="image/jpeg",
-                    content=cover_bytes
-                )
+            uid="cover-img",
+            file_name="images/cover.jpg",
+            media_type="image/jpeg",
+            content=cover_bytes
+        )
         book.add_item(cover_image_item)
 
-        existing_cover = None
-        for item in book.items:
-            if isinstance(item, epub.EpubHtml) and item.file_name == "cover.xhtml":
-                existing_cover = item
-                break
+        cover_html = epub.EpubHtml(title="Coperta", file_name="cover.xhtml", lang='ro', uid='cover-html')
+        cover_html.content = '''
+        <html>
+            <head><title>Cover</title></head>
+            <body>
+                <div style="text-align: center;">
+                    <img src="images/cover.jpg" alt="cover-img" style="max-width: 100%; height: auto;"/>
+                </div>
+            </body>
+        </html>
+        '''
+        book.add_item(cover_html)
 
-        if existing_cover:
-            existing_cover.content = '''
-            <html>
-                <head><title>Cover</title></head>
-                <body>
-                    <div style="text-align: center;">
-                        <img src="images/cover.jpg" alt="cover-img" style="max-width: 100%; height: auto;"/>
-                    </div>
-                </body>
-            </html>
-            '''
-        else:
-            cover_html = epub.EpubHtml(title="Coperta", file_name="cover.xhtml", lang='ro', uid='cover-html')
-            cover_html.cont = '''
-            <html>
-                <head><title>Cover</title></head>
-                <body>
-                    <div style="text-align: center;">
-                        <img src="images/cover.jpg" alt="cover-img" style="max-width: 100%; height: auto;"/>
-                    </div>
-                </body>
-            </html>
-            '''
-            book.add_item(cover_html)
+        cover_dir = os.path.join(os.path.dirname(__file__), "temp_covers")
+        os.makedirs(cover_dir, exist_ok=True)
+        cover_path = os.path.join(cover_dir, "cover.jpg")
 
-        return True
+        with open(cover_path, "wb") as f:
+            f.write(cover_bytes)
+
+
+        return True, cover_bytes
 
     except Exception as e:
         print(f"Eroare la adăugarea coperții: {str(e)}")
 
-    return False
+    return False, None
+
 
     

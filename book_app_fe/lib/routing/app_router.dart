@@ -3,7 +3,7 @@ import 'package:book_app/core/constants/route_names.dart';
 import 'package:book_app/core/providers/is_logged_in_provider.dart';
 import 'package:book_app/core/screens/main_screen.dart';
 import 'package:book_app/features/auth/presentation/screens/login_screen.dart';
-import 'package:book_app/features/home/presentation/screens/home_screen.dart'; // asigură-te că ai importat corect
+import 'package:book_app/features/home/presentation/screens/home_screen.dart';
 import 'package:book_app/features/library/presentation/screens/library_screen.dart';
 import 'package:book_app/features/profile/presentation/screens/profile_screen.dart';
 import 'package:book_app/features/search/presentation/screens/search_page.dart';

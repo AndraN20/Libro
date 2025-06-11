@@ -10,7 +10,8 @@ class BookDto(BaseModel):
     date: Optional[str] = None
     language: Optional[str] = None
     genre: Optional[str] = None
-    book_url: str = None
+    book_url: Optional[str] = None
+    user_id: Optional[int] = None
 
     model_config = ConfigDict(from_attributes=True)
 
