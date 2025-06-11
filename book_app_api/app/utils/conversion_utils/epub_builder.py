@@ -53,7 +53,7 @@ def add_cover(doc, book: epub.EpubBook) -> tuple[bool, bytes | None]:
         if not cover_bytes:
             return False, None
         
-        # book.set_cover("images/cover.jpg", cover_bytes)
+        book.set_cover("images/cover.jpg", cover_bytes)
 
         cover_image_item = epub.EpubItem(
             uid="cover-img",
