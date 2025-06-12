@@ -33,80 +33,71 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           );
         }
 
-        final userBooksAsync = ref.watch(userBooksProvider(user.id));
+        final booksAsync = ref.watch(booksProvider);
+        final startedBooksAsync = ref.watch(startedBooksProvider(user.id));
 
-        return userBooksAsync.when(
+        return booksAsync.when(
           loading:
               () => const Scaffold(
                 body: Center(child: CircularProgressIndicator()),
               ),
-          error: (err, _) => _buildScaffold(context, hasBooks: false),
-          data: (books) {
-            final hasBooks = books.isNotEmpty;
-            return _buildScaffold(context, hasBooks: hasBooks, books: books);
+          error:
+              (err, _) => Scaffold(
+                body: Center(child: Text('Error loading books: $err')),
+              ),
+          data: (allBooks) {
+            final fanBooks = (allBooks.toList()..shuffle()).take(3).toList();
+
+            return startedBooksAsync.when(
+              loading:
+                  () => const Scaffold(
+                    body: Center(child: CircularProgressIndicator()),
+                  ),
+              error: (err, _) => _buildScaffold(fanBooks, []),
+              data: (startedBooks) => _buildScaffold(fanBooks, startedBooks),
+            );
           },
         );
       },
     );
   }
 
-  Widget _buildScaffold(
-    BuildContext context, {
-    required bool hasBooks,
-    List<Book>? books,
-  }) {
-    final future =
-        hasBooks
-            ? Future<List<Book>>.value(books!)
-            : ref.read(libraryBooksProvider.future);
+  Widget _buildScaffold(List<Book> fanBooks, List<Book> startedBooks) {
+    final hasStartedBooks = startedBooks.isNotEmpty;
+    final sectionBooks = hasStartedBooks ? startedBooks : fanBooks;
 
-    return FutureBuilder<List<Book>>(
-      future: future,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
-
-        final list = snapshot.data ?? [];
-        final displayBooks = (list..shuffle()).take(5).toList();
-
-        return Scaffold(
-          body: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const WelcomeHeader(),
-                const SizedBox(height: 24),
-                BookFan(books: list),
-                const SizedBox(height: 24),
-                Padding(
-                  padding: const EdgeInsets.only(left: 35),
-                  child: Text(
-                    hasBooks ? 'Continue reading' : 'Explore our library',
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                    ).copyWith(color: AppColors.darkPurple),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 25),
-                  child: Divider(
-                    thickness: 1,
-                    height: 4,
-                    color: AppColors.darkPurple.withAlpha(51),
-                  ),
-                ),
-
-                BookList(books: displayBooks),
-              ],
+    return Scaffold(
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(vertical: 24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const WelcomeHeader(),
+            const SizedBox(height: 24),
+            BookFan(books: fanBooks),
+            const SizedBox(height: 24),
+            Padding(
+              padding: const EdgeInsets.only(left: 35),
+              child: Text(
+                hasStartedBooks ? 'Continue reading' : 'Start reading',
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                ).copyWith(color: AppColors.darkPurple),
+              ),
             ),
-          ),
-        );
-      },
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 25),
+              child: Divider(
+                thickness: 1,
+                height: 4,
+                color: AppColors.darkPurple.withAlpha(51),
+              ),
+            ),
+            BookList(books: sectionBooks),
+          ],
+        ),
+      ),
     );
   }
 }

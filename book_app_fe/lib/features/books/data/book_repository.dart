@@ -11,8 +11,8 @@ class BookRepository {
     return dtos.map((e) => e.toDomain()).toList();
   }
 
-  Future<List<Book>> getUserBooks(int userId) async {
-    final dtos = await service.fetchUserBooks(userId);
+  Future<List<Book>> getUserAddedBooksByUserId(int userId) async {
+    final dtos = await service.fetchUserAddedBooksByUserId(userId);
     return dtos.map((e) => e.toDomain()).toList();
   }
 
@@ -23,6 +23,15 @@ class BookRepository {
 
   Future<List<Book>> getBooksByGenre(String genre) async {
     final dtos = await service.getBooksByGenre(genre);
+    return dtos.map((e) => e.toDomain()).toList();
+  }
+
+  Future<void> deleteBook(int bookId) async {
+    await service.deleteBook(bookId);
+  }
+
+  Future<List<Book>> getStartedBooks(int userId) async {
+    final dtos = await service.getStartedBooks(userId);
     return dtos.map((e) => e.toDomain()).toList();
   }
 }

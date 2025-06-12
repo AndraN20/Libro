@@ -64,3 +64,7 @@ class BookService:
         if not self.book_repository.get_book_by_id(book_id):
             raise ValueError("Book not found")
         self.book_repository.delete_book(book_id)
+
+    def get_user_added_books_by_user_id(self, user_id: int) -> List[BookDto]:
+        books = self.book_repository.get_user_added_books_by_user_id(user_id)
+        return [to_dto(book) for book in books]

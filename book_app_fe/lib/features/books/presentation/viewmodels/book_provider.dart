@@ -3,6 +3,7 @@ import 'package:book_app/features/books/data/services/book_download_service.dart
 import 'package:book_app/features/books/data/services/book_service.dart';
 import 'package:book_app/features/books/data/services/book_upload_service.dart';
 import 'package:book_app/features/books/domain/entities/book.dart';
+import 'package:book_app/features/books/presentation/viewmodels/user_added_book_list_view.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:book_app/core/api/dio_provider.dart';
 
@@ -16,15 +17,23 @@ final bookRepositoryProvider = Provider<BookRepository>((ref) {
   return BookRepository(service);
 });
 
-final libraryBooksProvider = FutureProvider<List<Book>>((ref) async {
+final booksProvider = FutureProvider<List<Book>>((ref) async {
   return ref.watch(bookRepositoryProvider).getBooks();
 });
 
-final userBooksProvider = FutureProvider.family<List<Book>, int>((
+final startedBooksProvider = FutureProvider.family<List<Book>, int>((
   ref,
   userId,
 ) async {
-  return ref.watch(bookRepositoryProvider).getUserBooks(userId);
+  final repo = ref.watch(bookRepositoryProvider);
+  return await repo.getStartedBooks(userId);
+});
+
+final userAddedBooksProvider = FutureProvider.family<List<Book>, int>((
+  ref,
+  userId,
+) async {
+  return ref.watch(bookRepositoryProvider).getUserAddedBooksByUserId(userId);
 });
 
 final searchBooksProvider = FutureProvider.family<List<Book>, String>((
@@ -58,3 +67,13 @@ final bookUploadServiceProvider = Provider<BookUploadService>(
     bookRepository: ref.watch(bookRepositoryProvider),
   ),
 );
+
+final userAddedBookListViewModelProvider =
+    StateNotifierProvider<UserAddedBookListViewModel, AsyncValue<List<Book>>>((
+      ref,
+    ) {
+      final repo = ref.watch(bookRepositoryProvider);
+      final viewModel = UserAddedBookListViewModel(repo, ref);
+      viewModel.loadUserBooks();
+      return viewModel;
+    });

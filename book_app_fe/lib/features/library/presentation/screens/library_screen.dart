@@ -1,8 +1,11 @@
+import 'package:book_app/core/constants/colors.dart';
 import 'package:book_app/features/books/presentation/viewmodels/book_provider.dart';
+import 'package:book_app/features/books/presentation/widgets/book_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:book_app/features/books/presentation/screens/book_details_screen.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class LibraryScreen extends ConsumerStatefulWidget {
   const LibraryScreen({super.key});
@@ -49,20 +52,108 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final userAddedBooksAsync = ref.watch(userAddedBookListViewModelProvider);
+    final generalLibraryBooksAsync = ref.watch(booksProvider);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text("My Library"),
+        backgroundColor: Colors.white,
+
+        elevation: 0,
+        title: const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 40),
+          child: Text(
+            "My Library",
+            style: TextStyle(
+              color: AppColors.darkPurple,
+              fontWeight: FontWeight.bold,
+              fontSize: 24,
+            ),
+          ),
+        ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: isLoading ? null : _handleAddBook,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40),
+            child: IconButton(
+              onPressed: isLoading ? null : _handleAddBook,
+              icon: SvgPicture.asset(
+                'assets/icons/plus_circle.svg',
+                height: 24,
+                width: 24,
+              ),
+              splashColor: Colors.transparent,
+              highlightColor: Colors.transparent,
+            ),
           ),
         ],
       ),
       body:
           isLoading
               ? const Center(child: CircularProgressIndicator())
-              : const Center(child: Text("No books yet.")),
+              : SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 40,
+                  horizontal: 20,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.only(left: 20),
+                      child: Text(
+                        "Added Books",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.darkPurple,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    userAddedBooksAsync.when(
+                      loading:
+                          () =>
+                              const Center(child: CircularProgressIndicator()),
+                      error: (e, _) => Text("Error loading user books: $e"),
+                      data:
+                          (books) =>
+                              books.isEmpty
+                                  ? const Padding(
+                                    padding: EdgeInsets.only(left: 20),
+                                    child: Text("No added books yet."),
+                                  )
+                                  : BookList(books: books),
+                    ),
+                    const SizedBox(height: 32),
+                    const Padding(
+                      padding: EdgeInsets.only(left: 20),
+                      child: Text(
+                        "From General Library",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.darkPurple,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    generalLibraryBooksAsync.when(
+                      loading:
+                          () =>
+                              const Center(child: CircularProgressIndicator()),
+                      error: (e, _) => Text("Error loading general books: $e"),
+                      data:
+                          (books) =>
+                              books.isEmpty
+                                  ? const Padding(
+                                    padding: EdgeInsets.only(left: 20),
+                                    child: Text("No general books available."),
+                                  )
+                                  : BookList(books: books),
+                    ),
+                  ],
+                ),
+              ),
     );
   }
 }

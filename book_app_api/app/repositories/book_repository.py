@@ -47,3 +47,7 @@ class BookRepository:
             return None
         self.db.delete(book)
         self.db.commit()
+
+       
+    def get_user_added_books_by_user_id(self, user_id: int) -> List[Book]:
+        return self.db.query(Book).filter(Book.user_id == user_id).all()

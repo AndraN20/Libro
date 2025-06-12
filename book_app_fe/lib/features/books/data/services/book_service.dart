@@ -1,4 +1,3 @@
-import 'package:book_app/features/books/data/models/book_create_dto.dart';
 import 'package:book_app/features/books/data/models/book_dto.dart';
 import 'package:dio/dio.dart';
 
@@ -12,8 +11,8 @@ class BookService {
     return (response.data as List).map((e) => BookDto.fromJson(e)).toList();
   }
 
-  Future<List<BookDto>> fetchUserBooks(int userId) async {
-    final response = await _dio.get('/books/users/$userId');
+  Future<List<BookDto>> fetchUserAddedBooksByUserId(int userId) async {
+    final response = await _dio.get('/books/users/$userId/added');
     return (response.data as List).map((e) => BookDto.fromJson(e)).toList();
   }
 
@@ -34,9 +33,14 @@ class BookService {
         .toList();
   }
 
-  Future<BookDto> addBook(BookCreateModel model) async {
-    final response = await _dio.post('/books', data: model.toJson());
+  Future<List<BookDto>> getStartedBooks(int userId) async {
+    final response = await _dio.get('/books/started/$userId');
+    return (response.data as List)
+        .map((json) => BookDto.fromJson(json))
+        .toList();
+  }
 
-    return BookDto.fromJson(response.data);
+  Future<void> deleteBook(int bookId) async {
+    await _dio.delete('/books/$bookId');
   }
 }
