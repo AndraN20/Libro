@@ -4,6 +4,7 @@ import 'package:book_app/features/books/presentation/viewmodels/book_provider.da
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:book_app/features/books/domain/entities/book.dart';
+import 'package:path_provider/path_provider.dart';
 
 class BookDetailsScreen extends ConsumerStatefulWidget {
   final Book book;
@@ -69,25 +70,39 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
               onPressed: () async {
                 setState(() => isLoading = true);
 
-                final filePath = await downloadService.downloadBookFromUrl(
-                  widget.book.id,
-                  '${widget.book.title}-${widget.book.author}'.replaceAll(
-                    ' ',
-                    '_',
-                  ),
-                );
+                final dir = await getApplicationDocumentsDirectory();
+                final isUserBook = widget.book.userId != null;
 
-                if (filePath == null) {
+                final fileName =
+                    isUserBook
+                        ? "${widget.book.id}.epub"
+                        : "${widget.book.title}-${widget.book.author}"
+                                .replaceAll(' ', '_') +
+                            ".epub";
+
+                final localPath = "${dir.path}/$fileName";
+                print("local path: $localPath");
+                final file = File(localPath);
+                bool fileExists = await file.exists();
+
+                if (!fileExists && !isUserBook) {
+                  // doar pentru cărți globale (userId == null) permite descărcarea
+                  final downloadedPath = await downloadService
+                      .downloadBookFromUrl(widget.book.id, fileName);
+                  fileExists = downloadedPath != null;
+                }
+
+                if (!fileExists) {
                   setState(() => isLoading = false);
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text("Failed to download the book."),
+                      content: Text("Cartea nu este salvată local."),
                     ),
                   );
                   return;
                 }
 
-                final bytes = await File(filePath).readAsBytes();
+                final bytes = await file.readAsBytes();
 
                 if (!context.mounted) return;
 

@@ -7,7 +7,8 @@ class BookRepository:
         self.db = db
 
     def get_all_books(self) -> List[Book]:
-        return self.db.query(Book).all()
+        return self.db.query(Book).filter(Book.user_id.is_(None)).all()
+
     
     def get_book_by_id(self, book_id: int) -> Optional[Book]:
         return self.db.query(Book).filter(Book.id == book_id).first()

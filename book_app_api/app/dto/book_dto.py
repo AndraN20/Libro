@@ -32,5 +32,6 @@ class BookCreateDto(BaseModel):
     date: Optional[str] = None
     language: Optional[str] = None
     genre: Optional[str] = None
+    user_id: Optional[int] = None
     
     model_config = ConfigDict(from_attributes=True)

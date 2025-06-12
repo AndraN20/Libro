@@ -1,27 +1,7 @@
-import 'package:book_app/features/books/domain/entities/book.dart';
 import 'package:book_app/features/books/presentation/viewmodels/book_provider.dart';
 import 'package:book_app/features/books/presentation/widgets/book_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-final searchBooksProvider = FutureProvider.family<List<Book>, String>((
-  ref,
-  query,
-) async {
-  final repo = ref.watch(bookRepositoryProvider);
-  return await repo.searchBooks(query);
-});
-
-final genreBooksProvider = FutureProvider.family<List<Book>, String>((
-  ref,
-  genre,
-) async {
-  final repo = ref.watch(bookRepositoryProvider);
-  if (genre.toLowerCase() == 'all') {
-    return await repo.getBooks();
-  }
-  return await repo.getBooksByGenre(genre);
-});
 
 class SearchScreen extends ConsumerStatefulWidget {
   const SearchScreen({super.key});

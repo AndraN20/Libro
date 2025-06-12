@@ -9,7 +9,8 @@ class BookDto {
   final String? date;
   final String? language;
   final String? genre;
-  final String bookUrl;
+  final String? bookUrl;
+  final int? userId;
 
   BookDto({
     required this.id,
@@ -20,7 +21,8 @@ class BookDto {
     this.date,
     this.language,
     this.genre,
-    required this.bookUrl,
+    this.bookUrl,
+    this.userId,
   });
 
   factory BookDto.fromJson(Map<String, dynamic> json) => BookDto(
@@ -33,6 +35,7 @@ class BookDto {
     language: json['language'],
     genre: json['genre'],
     bookUrl: json['book_url'],
+    userId: json['user_id'],
   );
 
   Book toDomain() => Book(
@@ -45,5 +48,6 @@ class BookDto {
     language: language,
     genre: genre,
     bookUrl: bookUrl,
+    userId: userId,
   );
 }

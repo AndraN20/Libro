@@ -47,6 +47,8 @@ dependencies:
   epubx: ^4.0.0
   flutter_html: ^3.0.0
   html: ^0.15.6
+  file_picker: ^10.1.9
+  http_parser: ^4.1.2
 
 dev_dependencies:
   flutter_test:

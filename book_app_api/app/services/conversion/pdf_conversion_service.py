@@ -1,5 +1,6 @@
 import base64
 import io
+import os
 from typing import List
 import uuid
 from app.utils.conversion_utils.epub_builder import add_cover
@@ -23,7 +24,8 @@ class ConversionService:
         book = epub.EpubBook()
 
         book.set_identifier(str(uuid.uuid4()))
-        book.set_title(file.filename or "Unknown Title")
+        title = os.path.splitext(file.filename or "Unknown Title")[0]
+        book.set_title(title)
         book.set_language("en")
 
         chapters, toc = pdf_to_epub_chapters(doc)
@@ -38,7 +40,7 @@ class ConversionService:
         book.add_item(epub.EpubNav())
 
         book_dto = BookCreateDto(
-            title=file.filename or "Unknown Title",
+            title=title or "Unknown Title",
             author="Unknown",
             genre=None,
             description=None,

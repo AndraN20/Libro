@@ -10,7 +10,8 @@ class Book {
   final DateTime? date;
   final String? language;
   final String? genre;
-  final String bookUrl;
+  final String? bookUrl;
+  final int? userId;
 
   Book({
     required this.id,
@@ -21,7 +22,8 @@ class Book {
     this.date,
     this.language,
     this.genre,
-    required this.bookUrl,
+    this.bookUrl,
+    this.userId,
   });
 
   Uint8List? get decodedCover {
