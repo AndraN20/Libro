@@ -31,7 +31,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) {
-            Future<void> _pickNewImage() async {
+            Future<void> pickNewImage() async {
               final picker = ImagePicker();
               final picked = await picker.pickImage(
                 source: ImageSource.gallery,
@@ -47,7 +47,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             return EditProfileDialog(
               newImage: newProfileImage,
               usernameCtrl: usernameCtrl,
-              onImagePick: _pickNewImage,
+              onImagePick: pickNewImage,
               onCancel: () => Navigator.of(context).pop(),
               onSave: () async {
                 await ref
@@ -82,8 +82,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (e, _) => Center(child: Text('Error: $e')),
           data: (user) {
-            if (user == null)
+            if (user == null) {
               return const Center(child: Text("User not found"));
+            }
 
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,

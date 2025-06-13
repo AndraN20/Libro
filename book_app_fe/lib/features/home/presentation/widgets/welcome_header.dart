@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:book_app/core/constants/colors.dart';
+import 'package:go_router/go_router.dart';
 
 class WelcomeHeader extends StatelessWidget {
   const WelcomeHeader({super.key});
@@ -21,11 +22,16 @@ class WelcomeHeader extends StatelessWidget {
             ).copyWith(color: AppColors.darkPurple),
           ),
         ),
-        Center(
-          child: SvgPicture.asset(
-            'assets/welcome_back_card.svg',
-            width: MediaQuery.of(context).size.width * 0.90,
-            fit: BoxFit.contain,
+        GestureDetector(
+          onTap: () {
+            context.push('/search');
+          },
+          child: Center(
+            child: SvgPicture.asset(
+              'assets/welcome_back_card.svg',
+              width: MediaQuery.of(context).size.width * 0.90,
+              fit: BoxFit.contain,
+            ),
           ),
         ),
       ],

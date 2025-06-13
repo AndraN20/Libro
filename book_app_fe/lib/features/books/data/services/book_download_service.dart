@@ -33,7 +33,7 @@ class BookDownloadService {
   Future<String?> downloadBookFromUrl(int bookId, String fileName) async {
     try {
       final dir = await getApplicationDocumentsDirectory();
-      final path = "${dir.path}/$fileName.epub";
+      final path = "${dir.path}/$fileName";
 
       // ✅ Dacă deja există, returnează direct
       final file = File(path);

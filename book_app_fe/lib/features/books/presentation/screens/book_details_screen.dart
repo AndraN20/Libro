@@ -71,25 +71,28 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
                 setState(() => isLoading = true);
 
                 final dir = await getApplicationDocumentsDirectory();
-                final isUserBook = widget.book.userId != null;
+                final isUserAddedBook = widget.book.userId != null;
 
                 final fileName =
-                    isUserBook
+                    isUserAddedBook
                         ? "${widget.book.id}.epub"
-                        : "${widget.book.title}-${widget.book.author}"
-                                .replaceAll(' ', '_') +
-                            ".epub";
+                        : "${"${widget.book.title}-${widget.book.author}".replaceAll(' ', '-')}.epub";
 
                 final localPath = "${dir.path}/$fileName";
                 print("local path: $localPath");
-                final file = File(localPath);
+                File file = File(localPath);
                 bool fileExists = await file.exists();
 
-                if (!fileExists && !isUserBook) {
-                  // doar pentru cărți globale (userId == null) permite descărcarea
+                if (!fileExists && !isUserAddedBook) {
                   final downloadedPath = await downloadService
                       .downloadBookFromUrl(widget.book.id, fileName);
-                  fileExists = downloadedPath != null;
+
+                  if (downloadedPath != null) {
+                    fileExists = true;
+                    file = File(
+                      downloadedPath,
+                    ); // ✅ Actualizezi fișierul cu path-ul descărcat corect
+                  }
                 }
 
                 if (!fileExists) {

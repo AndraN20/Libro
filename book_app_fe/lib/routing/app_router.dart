@@ -1,8 +1,11 @@
+import 'dart:typed_data';
+
 import 'package:book_app/core/constants/navigation_keys.dart';
 import 'package:book_app/core/constants/route_names.dart';
 import 'package:book_app/core/providers/is_logged_in_provider.dart';
 import 'package:book_app/core/screens/main_screen.dart';
 import 'package:book_app/features/auth/presentation/screens/login_screen.dart';
+import 'package:book_app/features/books/presentation/screens/epub_reader_page_view.dart';
 import 'package:book_app/features/home/presentation/screens/home_screen.dart';
 import 'package:book_app/features/library/presentation/screens/library_screen.dart';
 import 'package:book_app/features/profile/presentation/screens/profile_screen.dart';
@@ -35,6 +38,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(path: '/library', builder: (_, __) => const LibraryScreen()),
           GoRoute(path: '/search', builder: (_, __) => const SearchScreen()),
           GoRoute(path: '/profile', builder: (_, __) => const ProfileScreen()),
+          GoRoute(
+            path: '/epub-reader',
+            builder: (context, state) {
+              final bytes = state.extra as Uint8List;
+              return EpubReaderPageView(epubBytes: bytes);
+            },
+          ),
         ],
       ),
     ],
