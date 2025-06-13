@@ -1,6 +1,6 @@
 import 'dart:io';
-import 'package:book_app/features/books/presentation/screens/epub_reader_page_view.dart';
 import 'package:book_app/features/books/presentation/viewmodels/book_provider.dart';
+import 'package:book_app/features/reader/presentation/widgets/epub_reader_web_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:book_app/features/books/domain/entities/book.dart';
@@ -72,26 +72,23 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
 
                 final dir = await getApplicationDocumentsDirectory();
                 final isUserAddedBook = widget.book.userId != null;
-
                 final fileName =
                     isUserAddedBook
                         ? "${widget.book.id}.epub"
-                        : "${"${widget.book.title}-${widget.book.author}".replaceAll(' ', '-')}.epub";
+                        : "${widget.book.title}-${widget.book.author}"
+                                .replaceAll(' ', '-') +
+                            '.epub';
 
                 final localPath = "${dir.path}/$fileName";
-                print("local path: $localPath");
                 File file = File(localPath);
                 bool fileExists = await file.exists();
 
                 if (!fileExists && !isUserAddedBook) {
                   final downloadedPath = await downloadService
                       .downloadBookFromUrl(widget.book.id, fileName);
-
                   if (downloadedPath != null) {
                     fileExists = true;
-                    file = File(
-                      downloadedPath,
-                    ); // ✅ Actualizezi fișierul cu path-ul descărcat corect
+                    file = File(downloadedPath);
                   }
                 }
 
@@ -105,20 +102,22 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
                   return;
                 }
 
-                final bytes = await file.readAsBytes();
-
                 if (!context.mounted) return;
-
                 setState(() => isLoading = false);
 
+                // În loc de EpubReaderPageView, deschidem WebView-ul:
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => EpubReaderPageView(epubBytes: bytes),
+                    builder:
+                        (_) => EpubReaderWebView(
+                          epubFilePath: file.path,
+                          initialCfi:
+                              "", // sau salvezi undeva ultimul CFI și îl trimiți aici
+                        ),
                   ),
                 );
               },
-
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF5F5BD1),
                 shape: RoundedRectangleBorder(
@@ -141,6 +140,7 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
                       )
                       : const Text("Start Reading"),
             ),
+
             const SizedBox(height: 20),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),

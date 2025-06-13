@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Asset base URL -->
+    <base href="file:///android_asset/flutter_assets/assets/" />
+    <style>
+      /* full-bleed layout and disable tap highlight */
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+      }
+      /* viewer covers entire area */
+      #viewer {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        overflow: hidden;
+      }
+      /* navigation overlays: invisible, no highlight */
+      .nav {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 50%;
+        z-index: 5;
+        background: transparent;
+        -webkit-tap-highlight-color: transparent;
+      }
+      #prev {
+        left: 0;
+      }
+      #next {
+        right: 0;
+      }
+    </style>
+    <!-- forward console.log to Flutter -->
+    <script>
+      const _nativeLog = console.log.bind(console);
+      console.log = (...args) => {
+        if (window.Console && window.Console.postMessage)
+          window.Console.postMessage(args.join(" "));
+        _nativeLog(...args);
+      };
+    </script>
+    <!-- libraries -->
+    <script src="epubjs/jszip.min.js"></script>
+    <script src="epubjs/epub.min.js"></script>
+  </head>
+  <body>
+    <div id="viewer"></div>
+    <div id="prev" class="nav"></div>
+    <div id="next" class="nav"></div>
+    <script>
+      let book, rendition;
+      console.log("SMOKE → ePub is", typeof ePub);
+      function setupNav() {
+        document
+          .getElementById("prev")
+          .addEventListener("click", () => rendition.prev());
+        document
+          .getElementById("next")
+          .addEventListener("click", () => rendition.next());
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "ArrowLeft") rendition.prev();
+          if (e.key === "ArrowRight") rendition.next();
+        });
+        let startX = 0,
+          startY = 0;
+        const threshold = 50;
+        const viewer = document.getElementById("viewer");
+        viewer.addEventListener("touchstart", (e) => {
+          const { clientX, clientY } = e.changedTouches[0];
+          startX = clientX;
+          startY = clientY;
+        });
+        viewer.addEventListener("touchend", (e) => {
+          const { clientX, clientY } = e.changedTouches[0];
+          const dx = clientX - startX;
+          const dy = clientY - startY;
+          if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > threshold) {
+            dx > 0 ? rendition.prev() : rendition.next();
+          }
+        });
+      }
+      function openBookData(b64, savedCfi) {
+        book = ePub(b64, { encoding: "base64" });
+        rendition = book.renderTo("viewer", {
+          flow: "paginated",
+          width: "100%",
+          height: "100%",
+          spread: "auto",
+        });
+        rendition.display(savedCfi || undefined);
+        setupNav();
+        rendition.on("relocated", (loc) => {
+          if (window.Flutter && Flutter.postMessage)
+            Flutter.postMessage(loc.start.cfi);
+        });
+      }
+      function adjustFontSize(size) {
+        if (!rendition) return;
+        rendition.themes.fontSize(size + "px");
+        rendition.flow("paginated");
+        rendition.display();
+      }
+    </script>
+  </body>
+</html>
