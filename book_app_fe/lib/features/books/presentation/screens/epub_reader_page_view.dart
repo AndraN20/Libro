@@ -1,4 +1,5 @@
 import 'package:book_app/core/utils/epub_utils.dart';
+import 'package:book_app/features/reader/presentation/widgets/reader_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:epubx/epubx.dart';
@@ -54,84 +55,18 @@ class _EpubReaderPageViewState extends State<EpubReaderPageView> {
     showDialog(
       context: context,
       builder:
-          (_) => Dialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // dimensiune text
-                  Text(
-                    'Dimensiune text',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  ...[14.0, 16.0, 18.0, 20.0].map(
-                    (size) => RadioListTile<double>(
-                      title: Text('${size.toInt()}'),
-                      value: size,
-                      groupValue: fontSize,
-                      onChanged: (v) => setState(() => fontSize = v!),
-                    ),
-                  ),
-
-                  Divider(),
-
-                  // font
-                  Text('Font', style: TextStyle(fontWeight: FontWeight.bold)),
-                  ...['serif', 'sans-serif', 'monospace'].map(
-                    (font) => RadioListTile<String>(
-                      title: Text(font),
-                      value: font,
-                      groupValue: fontFamily,
-                      onChanged: (v) => setState(() => fontFamily = v!),
-                    ),
-                  ),
-
-                  Divider(),
-
-                  // background
-                  Text(
-                    'Culoare fundal',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  ...[
-                    {'color': Colors.white, 'label': 'Alb'},
-                    {'color': Colors.black87, 'label': 'Închis'},
-                    {'color': Color(0xFFFAF0E6), 'label': 'Sepia'},
-                  ].map(
-                    (opt) => RadioListTile<Color>(
-                      title: Row(
-                        children: [
-                          Container(
-                            width: 16,
-                            height: 16,
-                            decoration: BoxDecoration(
-                              color: opt['color'] as Color,
-                              shape: BoxShape.circle,
-                              border: Border.all(color: Colors.grey),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(opt['label'] as String),
-                        ],
-                      ),
-                      value: opt['color'] as Color,
-                      groupValue: bgColor,
-                      onChanged: (v) => setState(() => bgColor = v!),
-                    ),
-                  ),
-
-                  const SizedBox(height: 8),
-                  ElevatedButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('OK'),
-                  ),
-                ],
-              ),
-            ),
+          (_) => ReaderSettingsDialog(
+            initialFontSize: fontSize,
+            initialFontFamily: fontFamily,
+            initialBgColor: bgColor,
+            onSettingsChanged: (newSize, newFont, newBg) {
+              if (!mounted) return;
+              setState(() {
+                fontSize = newSize;
+                fontFamily = newFont;
+                bgColor = newBg;
+              });
+            },
           ),
     );
   }
