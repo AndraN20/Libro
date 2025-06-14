@@ -1,7 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:book_app/core/constants/colors.dart';
+import 'package:book_app/features/reader/presentation/widgets/reader_settings.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class EpubReaderWebView extends StatefulWidget {
@@ -15,59 +18,158 @@ class EpubReaderWebView extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _EpubReaderWebViewState createState() => _EpubReaderWebViewState();
+  State<EpubReaderWebView> createState() => _EpubReaderWebViewState();
 }
 
 class _EpubReaderWebViewState extends State<EpubReaderWebView> {
   late final WebViewController _controller;
 
+  double _fontSize = 16;
+  String _fontFamily = 'serif';
+  Color _bgColor = Colors.white;
+
+  bool showOverlay = false;
+
   @override
   void initState() {
     super.initState();
 
-    // 1. Instantiate the controller
     _controller =
         WebViewController()
           ..setJavaScriptMode(JavaScriptMode.unrestricted)
-          // 2. Add the 'Flutter' channel
           ..addJavaScriptChannel(
-            'Console', // numele canalului
+            'Console',
             onMessageReceived: (msg) {
               debugPrint("📦 [WebView console] ${msg.message}");
             },
           )
-          // 3. Hook page-finished to kick off EPUB loading
+          ..addJavaScriptChannel(
+            'Flutter',
+            onMessageReceived: (msg) {
+              switch (msg.message) {
+                case 'back':
+                  context.pop();
+                  break;
+                case 'openSettings':
+                  _openSettings();
+                  break;
+                default:
+                // Future support for CFI position
+              }
+            },
+          )
           ..setNavigationDelegate(
             NavigationDelegate(onPageFinished: (_) => _loadEpub()),
           )
-          // 4. Load your HTML scaffold from assets
           ..loadFlutterAsset('assets/epub_reader.html');
-
-    // NOTE: you no longer do `WebView.platform = ...` here :contentReference[oaicite:0]{index=0}
   }
 
-  void _loadEpub() async {
-    debugPrint('Loading EPUB from path: ${widget.epubFilePath}');
+  Future<void> _loadEpub() async {
     final file = File(widget.epubFilePath);
-    final exists = await file.exists();
-    debugPrint('  → File exists? $exists');
-    if (!exists) {
-      // bail out early so you’ll see the error in your Dart log
-      return;
-    }
-
+    if (!await file.exists()) return;
     final bytes = await file.readAsBytes();
     final b64 = base64Encode(bytes);
-    _controller.runJavaScript('openBookData("$b64", "${widget.initialCfi}");');
+
+    await _controller.runJavaScript(
+      'openBookData("$b64", "${widget.initialCfi}");',
+    );
+
+    final bgHex =
+        '#${_bgColor.value.toRadixString(16).padLeft(8, '0').substring(2)}';
+    await _controller.runJavaScript(
+      'applySettings($_fontSize, "$_fontFamily", "$bgHex");',
+    );
   }
 
-  /// Call this to change the font size inside the WebView
-  void adjustFontSize(double size) {
-    _controller.runJavaScript('adjustFontSize($size);');
+  void _openSettings() {
+    showDialog(
+      context: context,
+      builder:
+          (_) => ReaderSettingsDialog(
+            initialFontSize: _fontSize,
+            initialFontFamily: _fontFamily,
+            initialBgColor: _bgColor,
+            onSettingsChanged: (fontSize, fontFamily, bgColor) {
+              _fontSize = fontSize;
+              _fontFamily = fontFamily;
+              _bgColor = bgColor;
+              final bgHex =
+                  '#${bgColor.value.toRadixString(16).padLeft(8, '0').substring(2)}';
+              _controller.runJavaScript(
+                'applySettings($fontSize, "$fontFamily", "$bgHex");',
+              );
+            },
+          ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: WebViewWidget(controller: _controller));
+    return Scaffold(
+      body: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onScaleStart: (details) {
+          if (details.pointerCount == 2) {
+            setState(() => showOverlay = true);
+          }
+        },
+        onTap: () {
+          setState(() => showOverlay = false);
+        },
+        child: Stack(
+          children: [
+            SafeArea(child: WebViewWidget(controller: _controller)),
+
+            if (showOverlay)
+              Positioned.fill(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTap: () => setState(() => showOverlay = false),
+                  child: const SizedBox.expand(),
+                ),
+              ),
+
+            if (showOverlay)
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                  color: AppColors.lightPurple,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const SizedBox(height: 30),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          IconButton(
+                            icon: const Icon(
+                              Icons.arrow_back,
+                              color: AppColors.darkPurple,
+                            ),
+                            onPressed: () => context.pop(),
+                          ),
+                          IconButton(
+                            icon: const Icon(
+                              Icons.more_vert,
+                              color: AppColors.darkPurple,
+                            ),
+                            onPressed: _openSettings,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
   }
 }

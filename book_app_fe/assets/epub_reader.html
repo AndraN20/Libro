@@ -2,11 +2,12 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- Asset base URL -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <base href="file:///android_asset/flutter_assets/assets/" />
     <style>
-      /* full-bleed layout and disable tap highlight */
       html,
       body {
         margin: 0;
@@ -14,10 +15,10 @@
         width: 100vw;
         height: 100vh;
         overflow: hidden;
+        background: var(--bg, white);
         -webkit-tap-highlight-color: transparent;
         touch-action: manipulation;
       }
-      /* viewer covers entire area */
       #viewer {
         position: absolute;
         top: 0;
@@ -25,14 +26,15 @@
         right: 0;
         bottom: 0;
         overflow: hidden;
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: env(safe-area-inset-bottom);
+        box-sizing: border-box;
       }
-      /* navigation overlays: invisible, no highlight */
       .nav {
         position: absolute;
         top: 0;
         bottom: 0;
-        width: 50%;
-        z-index: 5;
+        width: 25%;
         background: transparent;
         -webkit-tap-highlight-color: transparent;
       }
@@ -43,16 +45,15 @@
         right: 0;
       }
     </style>
-    <!-- forward console.log to Flutter -->
     <script>
+      // forward console.log to Dart
       const _nativeLog = console.log.bind(console);
       console.log = (...args) => {
-        if (window.Console && window.Console.postMessage)
-          window.Console.postMessage(args.join(" "));
+        if (window.Console && Console.postMessage)
+          Console.postMessage(args.join(" "));
         _nativeLog(...args);
       };
     </script>
-    <!-- libraries -->
     <script src="epubjs/jszip.min.js"></script>
     <script src="epubjs/epub.min.js"></script>
   </head>
@@ -60,38 +61,39 @@
     <div id="viewer"></div>
     <div id="prev" class="nav"></div>
     <div id="next" class="nav"></div>
+
     <script>
       let book, rendition;
-      console.log("SMOKE → ePub is", typeof ePub);
+
       function setupNav() {
-        document
-          .getElementById("prev")
-          .addEventListener("click", () => rendition.prev());
-        document
-          .getElementById("next")
-          .addEventListener("click", () => rendition.next());
+        document.getElementById("prev").onclick = () => rendition.prev();
+        document.getElementById("next").onclick = () => rendition.next();
         document.addEventListener("keydown", (e) => {
           if (e.key === "ArrowLeft") rendition.prev();
           if (e.key === "ArrowRight") rendition.next();
         });
-        let startX = 0,
-          startY = 0;
-        const threshold = 50;
-        const viewer = document.getElementById("viewer");
-        viewer.addEventListener("touchstart", (e) => {
-          const { clientX, clientY } = e.changedTouches[0];
-          startX = clientX;
-          startY = clientY;
+
+        // swipe nav
+        let sx = 0,
+          sy = 0,
+          thr = 50;
+        const v = document.getElementById("viewer");
+        v.addEventListener("touchstart", (e) => {
+          const t = e.changedTouches[0];
+          sx = t.clientX;
+          sy = t.clientY;
         });
-        viewer.addEventListener("touchend", (e) => {
-          const { clientX, clientY } = e.changedTouches[0];
-          const dx = clientX - startX;
-          const dy = clientY - startY;
-          if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > threshold) {
+        v.addEventListener("touchend", (e) => {
+          const t = e.changedTouches[0];
+          const dx = t.clientX - sx,
+            dy = t.clientY - sy;
+          if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > thr) {
             dx > 0 ? rendition.prev() : rendition.next();
           }
         });
       }
+
+      // entry from Flutter
       function openBookData(b64, savedCfi) {
         book = ePub(b64, { encoding: "base64" });
         rendition = book.renderTo("viewer", {
@@ -102,16 +104,48 @@
         });
         rendition.display(savedCfi || undefined);
         setupNav();
+        // send CFI back if you want
         rendition.on("relocated", (loc) => {
-          if (window.Flutter && Flutter.postMessage)
-            Flutter.postMessage(loc.start.cfi);
+          if (window.Flutter && Flutter.postMessage) {
+            Flutter.postMessage(JSON.stringify({ cfi: loc.start.cfi }));
+          }
         });
       }
-      function adjustFontSize(size) {
+
+      // apply font size, font family & background
+      function applySettings(fontSize, fontFamily, bgColor) {
+        document.documentElement.style.setProperty("--bg", bgColor || "white");
+
+        const textColor = bgColor && isDark(bgColor) ? "white" : "black";
+        document.body.style.color = textColor;
+
         if (!rendition) return;
-        rendition.themes.fontSize(size + "px");
+        rendition.themes.fontSize(fontSize + "px");
+        if (fontFamily) rendition.themes.font(fontFamily);
         rendition.flow("paginated");
         rendition.display();
+      }
+
+      function isDark(hexColor) {
+        const rgb = hexToRgb(hexColor);
+        if (!rgb) return false;
+        const [r, g, b] = rgb;
+        const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
+        return luminance < 128;
+      }
+
+      function hexToRgb(hex) {
+        const cleanHex = hex.replace("#", "");
+        if (cleanHex.length !== 6) return null;
+        const r = parseInt(cleanHex.substring(0, 2), 16);
+        const g = parseInt(cleanHex.substring(2, 4), 16);
+        const b = parseInt(cleanHex.substring(4, 6), 16);
+        return [r, g, b];
+      }
+
+      // legacy shim
+      function adjustFontSize(sz) {
+        applySettings(sz, null, null);
       }
     </script>
   </body>

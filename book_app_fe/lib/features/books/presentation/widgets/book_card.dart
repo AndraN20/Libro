@@ -1,8 +1,8 @@
 import 'package:book_app/core/constants/colors.dart';
 import 'package:book_app/core/widgets/progress_bar.dart';
 import 'package:book_app/features/books/domain/entities/book.dart';
-import 'package:book_app/features/books/presentation/screens/book_details_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class BookCard extends StatelessWidget {
   final Book book;
@@ -78,12 +78,7 @@ class BookCard extends StatelessWidget {
               size: 32,
             ),
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => BookDetailsScreen(book: book),
-                ),
-              );
+              context.push('/book-details', extra: book);
             },
           ),
         ],

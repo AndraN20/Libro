@@ -1,14 +1,14 @@
-import 'dart:typed_data';
-
 import 'package:book_app/core/constants/navigation_keys.dart';
 import 'package:book_app/core/constants/route_names.dart';
 import 'package:book_app/core/providers/is_logged_in_provider.dart';
 import 'package:book_app/core/screens/main_screen.dart';
 import 'package:book_app/features/auth/presentation/screens/login_screen.dart';
-import 'package:book_app/features/books/presentation/screens/epub_reader_page_view.dart';
+import 'package:book_app/features/books/domain/entities/book.dart';
+import 'package:book_app/features/books/presentation/screens/book_details_screen.dart';
 import 'package:book_app/features/home/presentation/screens/home_screen.dart';
 import 'package:book_app/features/library/presentation/screens/library_screen.dart';
 import 'package:book_app/features/profile/presentation/screens/profile_screen.dart';
+import 'package:book_app/features/reader/presentation/widgets/epub_reader_web_view.dart';
 import 'package:book_app/features/search/presentation/screens/search_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -29,6 +29,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               body: Center(child: CircularProgressIndicator()),
             ),
       ),
+      GoRoute(
+        path: '/epub-reader',
+        builder: (context, state) {
+          final extras = state.extra as Map<String, dynamic>;
+          return EpubReaderWebView(
+            epubFilePath: extras['filePath'] as String,
+            initialCfi: extras['initialCfi'] as String? ?? "",
+          );
+        },
+      ),
 
       ShellRoute(
         builder: (_, __, child) => MainScreen(child: child),
@@ -37,14 +47,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(path: '/home', builder: (_, __) => const HomeScreen()),
           GoRoute(path: '/library', builder: (_, __) => const LibraryScreen()),
           GoRoute(path: '/search', builder: (_, __) => const SearchScreen()),
-          GoRoute(path: '/profile', builder: (_, __) => const ProfileScreen()),
           GoRoute(
-            path: '/epub-reader',
+            path: '/book-details',
             builder: (context, state) {
-              final bytes = state.extra as Uint8List;
-              return EpubReaderPageView(epubBytes: bytes);
+              final book = state.extra as Book;
+              return BookDetailsScreen(book: book);
             },
           ),
+          GoRoute(path: '/profile', builder: (_, __) => const ProfileScreen()),
         ],
       ),
     ],

@@ -1,9 +1,10 @@
 import 'dart:io';
+import 'package:book_app/core/constants/colors.dart';
 import 'package:book_app/features/books/presentation/viewmodels/book_provider.dart';
-import 'package:book_app/features/reader/presentation/widgets/epub_reader_web_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:book_app/features/books/domain/entities/book.dart';
+import 'package:go_router/go_router.dart';
 import 'package:path_provider/path_provider.dart';
 
 class BookDetailsScreen extends ConsumerStatefulWidget {
@@ -17,6 +18,7 @@ class BookDetailsScreen extends ConsumerStatefulWidget {
 
 class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
   bool isLoading = false;
+  bool isInProgress = false;
 
   @override
   Widget build(BuildContext context) {
@@ -106,20 +108,16 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
                 setState(() => isLoading = false);
 
                 // În loc de EpubReaderPageView, deschidem WebView-ul:
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder:
-                        (_) => EpubReaderWebView(
-                          epubFilePath: file.path,
-                          initialCfi:
-                              "", // sau salvezi undeva ultimul CFI și îl trimiți aici
-                        ),
-                  ),
+                context.push(
+                  '/epub-reader',
+                  extra: {
+                    'filePath': file.path,
+                    'initialCfi': "", // sau ultima poziție salvată
+                  },
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF5F5BD1),
+                backgroundColor: AppColors.primary,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -138,7 +136,10 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
                           strokeWidth: 2,
                         ),
                       )
-                      : const Text("Start Reading"),
+                      : Text(
+                        isInProgress ? "Continue Reading" : "Start Reading",
+                        style: const TextStyle(color: Colors.white),
+                      ),
             ),
 
             const SizedBox(height: 20),

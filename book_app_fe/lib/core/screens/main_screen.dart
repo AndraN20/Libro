@@ -17,29 +17,33 @@ class MainScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final location = GoRouterState.of(context).uri.toString();
-    final selectedIndex = _calculateIndex(location);
+
+    final hideNavBar = location.startsWith('/epub-reader');
 
     return Scaffold(
       body: child,
-      bottomNavigationBar: CustomNavBar(
-        selectedIndex: selectedIndex,
-        onTap: (index) {
-          switch (index) {
-            case 0:
-              context.go('/home');
-              break;
-            case 1:
-              context.go('/library');
-              break;
-            case 2:
-              context.go('/search');
-              break;
-            case 3:
-              context.go('/profile');
-              break;
-          }
-        },
-      ),
+      bottomNavigationBar:
+          hideNavBar
+              ? null
+              : CustomNavBar(
+                selectedIndex: _calculateIndex(location),
+                onTap: (index) {
+                  switch (index) {
+                    case 0:
+                      context.go('/home');
+                      break;
+                    case 1:
+                      context.go('/library');
+                      break;
+                    case 2:
+                      context.go('/search');
+                      break;
+                    case 3:
+                      context.go('/profile');
+                      break;
+                  }
+                },
+              ),
     );
   }
 }

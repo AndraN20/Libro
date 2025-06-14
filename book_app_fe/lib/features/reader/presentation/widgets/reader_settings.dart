@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:book_app/core/constants/colors.dart';
 
 class ReaderSettingsDialog extends StatefulWidget {
   final double initialFontSize;
@@ -35,6 +36,7 @@ class _ReaderSettingsDialogState extends State<ReaderSettingsDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
+      backgroundColor: AppColors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -42,7 +44,6 @@ class _ReaderSettingsDialogState extends State<ReaderSettingsDialog> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Font size
               const Text(
                 'Dimensiune text',
                 style: TextStyle(fontWeight: FontWeight.bold),
@@ -57,7 +58,6 @@ class _ReaderSettingsDialogState extends State<ReaderSettingsDialog> {
               ),
               const Divider(),
 
-              // Font family
               const Text('Font', style: TextStyle(fontWeight: FontWeight.bold)),
               ...['serif', 'sans-serif', 'monospace'].map(
                 (font) => RadioListTile<String>(
@@ -69,7 +69,6 @@ class _ReaderSettingsDialogState extends State<ReaderSettingsDialog> {
               ),
               const Divider(),
 
-              // Background color
               const Text(
                 'Culoare fundal',
                 style: TextStyle(fontWeight: FontWeight.bold),
@@ -77,7 +76,7 @@ class _ReaderSettingsDialogState extends State<ReaderSettingsDialog> {
               ...[
                 {'color': Colors.white, 'label': 'Alb'},
                 {'color': Colors.black87, 'label': 'Închis'},
-                {'color': Color(0xFFFAF0E6), 'label': 'Sepia'},
+                {'color': const Color(0xFFFAF0E6), 'label': 'Sepia'},
               ].map((opt) {
                 final c = opt['color'] as Color;
                 return RadioListTile<Color>(
@@ -103,8 +102,10 @@ class _ReaderSettingsDialogState extends State<ReaderSettingsDialog> {
               }).toList(),
               const SizedBox(height: 8),
 
-              // OK button
               ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.darkPurple,
+                ),
                 onPressed: () {
                   widget.onSettingsChanged(_fontSize, _fontFamily, _bgColor);
                   Navigator.of(context).pop();
