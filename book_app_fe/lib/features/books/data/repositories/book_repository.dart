@@ -1,5 +1,5 @@
 import 'package:book_app/features/books/data/services/book_service.dart';
-import 'package:book_app/features/books/domain/entities/book.dart';
+import 'package:book_app/features/books/domain/models/book.dart';
 
 class BookRepository {
   final BookService service;

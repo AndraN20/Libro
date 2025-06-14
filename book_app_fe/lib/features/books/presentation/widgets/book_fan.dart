@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:book_app/features/books/domain/entities/book.dart';
+import 'package:book_app/features/books/domain/models/book.dart';
 
 class BookFan extends StatelessWidget {
   final List<Book> books;

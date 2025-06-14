@@ -1,4 +1,4 @@
-import 'package:book_app/features/books/domain/entities/book.dart';
+import 'package:book_app/features/books/domain/models/book.dart';
 
 class BookCoverDto {
   final int id;

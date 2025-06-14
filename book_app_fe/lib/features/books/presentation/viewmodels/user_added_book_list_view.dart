@@ -1,5 +1,5 @@
-import 'package:book_app/features/books/data/book_repository.dart';
-import 'package:book_app/features/books/domain/entities/book.dart';
+import 'package:book_app/features/books/data/repositories/book_repository.dart';
+import 'package:book_app/features/books/domain/models/book.dart';
 import 'package:book_app/features/auth/presentation/viewmodels/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

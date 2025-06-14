@@ -1,3 +1,4 @@
+from datetime import datetime
 from app.entities.enums.status_enum import StatusEnum
 from sqlalchemy.orm import Session, selectinload
 from app.entities.progress import Progress
@@ -13,12 +14,11 @@ class ProgressRepository:
             .first()
 
     
-    def add_progress(self, book_id:int, user_id:int) -> Progress:
-        progress = Progress(book_id=book_id,
-                            user_id=user_id,
-                            percentage=0.0,
-                            page=1,
-                            chapter=None,
+    def add_progress(self, progress:Progress) -> Progress:
+        progress = Progress(book_id=progress.book_id,
+                            user_id=progress.user_id,
+                            epub_cfi=progress.epub_cfi,
+                            last_read_at=datetime.now(),
                             status=StatusEnum.in_progress)
         try:
             self.db.add(progress)

@@ -1,6 +1,6 @@
 import 'package:book_app/core/constants/colors.dart';
 import 'package:book_app/core/widgets/progress_bar.dart';
-import 'package:book_app/features/books/domain/entities/book.dart';
+import 'package:book_app/features/books/domain/models/book.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 

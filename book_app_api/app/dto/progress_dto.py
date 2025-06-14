@@ -1,21 +1,28 @@
+from pydantic import Field
+from datetime import datetime
 from app.entities.enums.status_enum import StatusEnum
 from pydantic import BaseModel, ConfigDict
 from typing import Optional
 
 class ProgressUpdateDto(BaseModel):
-    percentage: Optional[float] = None
-    page: Optional[int] = None
-    chapter: Optional[int] = None
-    status: Optional[StatusEnum] = None
+    epub_cfi: str | None = None
+    last_read_at: datetime = Field(default_factory=datetime.utcnow)
+    status: StatusEnum | None = None
 
     model_config = ConfigDict(from_attributes=True)
 
 class ProgressDto(BaseModel):
     book_id: int
-    user_id: int
-    percentage: Optional[float] = None
-    page:  Optional[int] = None
-    chapter: Optional[int] = None
-    status: Optional[StatusEnum] = None
+    epub_cfi: str | None = None
+    last_read_at: datetime | None = None
+    status: StatusEnum
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ProgressCreateDto(BaseModel):
+    epub_cfi: str | None = None
+    last_read_at: datetime | None = None
+    status: StatusEnum
 
     model_config = ConfigDict(from_attributes=True)

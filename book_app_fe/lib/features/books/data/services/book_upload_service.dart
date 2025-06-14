@@ -1,9 +1,9 @@
 import 'dart:io';
-import 'package:book_app/features/books/data/book_repository.dart';
+import 'package:book_app/features/books/data/repositories/book_repository.dart';
 import 'package:dio/dio.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:book_app/features/books/domain/entities/book.dart';
+import 'package:book_app/features/books/domain/models/book.dart';
 import 'package:book_app/features/books/data/models/book_dto.dart';
 
 class BookUploadService {

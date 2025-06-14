@@ -1,7 +1,7 @@
 import 'package:book_app/core/constants/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:book_app/features/books/domain/entities/book.dart';
+import 'package:book_app/features/books/domain/models/book.dart';
 import 'package:book_app/features/books/presentation/viewmodels/book_provider.dart';
 import 'package:book_app/features/books/presentation/widgets/book_card.dart';
 

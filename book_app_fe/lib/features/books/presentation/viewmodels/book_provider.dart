@@ -1,8 +1,8 @@
-import 'package:book_app/features/books/data/book_repository.dart';
+import 'package:book_app/features/books/data/repositories/book_repository.dart';
 import 'package:book_app/features/books/data/services/book_download_service.dart';
 import 'package:book_app/features/books/data/services/book_service.dart';
 import 'package:book_app/features/books/data/services/book_upload_service.dart';
-import 'package:book_app/features/books/domain/entities/book.dart';
+import 'package:book_app/features/books/domain/models/book.dart';
 import 'package:book_app/features/books/presentation/viewmodels/user_added_book_list_view.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:book_app/core/api/dio_provider.dart';

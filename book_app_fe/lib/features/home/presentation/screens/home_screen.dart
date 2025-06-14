@@ -1,6 +1,6 @@
 import 'package:book_app/core/constants/colors.dart';
 import 'package:book_app/features/auth/presentation/viewmodels/auth_provider.dart';
-import 'package:book_app/features/books/domain/entities/book.dart';
+import 'package:book_app/features/books/domain/models/book.dart';
 import 'package:book_app/features/books/presentation/viewmodels/book_provider.dart';
 import 'package:book_app/features/books/presentation/widgets/book_fan.dart';
 import 'package:book_app/features/books/presentation/widgets/book_list.dart';
