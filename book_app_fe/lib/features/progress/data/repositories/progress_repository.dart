@@ -14,6 +14,13 @@ class ProgressRepository {
     required int bookId,
     required Progress progress,
   }) {
-    return service.saveProgress(bookId, progress);
+    return service.createProgress(bookId, progress);
+  }
+
+  Future<void> createProgress({
+    required int bookId,
+    required Progress progress,
+  }) {
+    return service.createProgress(bookId, progress);
   }
 }

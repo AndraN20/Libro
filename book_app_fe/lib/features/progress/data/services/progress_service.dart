@@ -16,11 +16,19 @@ class ProgressService {
     }
   }
 
-  Future<void> saveProgress(int bookId, Progress progress) async {
+  Future<void> updateProgress(int bookId, Progress progress) async {
+    try {
+      await dio.patch('/progress/$bookId', data: progress.toJson());
+    } on DioException catch (e) {
+      throw Exception("Failed to update progress: ${e.response?.data}");
+    }
+  }
+
+  Future<void> createProgress(int bookId, Progress progress) async {
     try {
       await dio.post('/progress/$bookId', data: progress.toJson());
     } on DioException catch (e) {
-      throw Exception("Failed to save progress: ${e.response?.data}");
+      throw Exception("Failed to create progress: ${e.response?.data}");
     }
   }
 }

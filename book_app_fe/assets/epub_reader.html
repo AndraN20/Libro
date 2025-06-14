@@ -26,8 +26,7 @@
         right: 0;
         bottom: 0;
         overflow: hidden;
-        padding-top: env(safe-area-inset-top);
-        padding-bottom: env(safe-area-inset-bottom);
+        padding: 0;
         box-sizing: border-box;
       }
     </style>
@@ -62,7 +61,12 @@
               spread: "auto",
             });
 
-            rendition.display(savedCfi || undefined);
+            const displayCfi =
+              typeof savedCfi === "string" && savedCfi.length > 0
+                ? savedCfi
+                : undefined;
+            rendition.display(displayCfi);
+
             setupNav();
 
             rendition.on("relocated", (location) => {

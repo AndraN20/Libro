@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:book_app/core/constants/colors.dart';
 import 'package:book_app/features/books/presentation/viewmodels/book_provider.dart';
+import 'package:book_app/features/progress/domain/models/progress.dart';
+import 'package:book_app/features/progress/presentation/viewmodels/reader_progress_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:book_app/features/books/domain/models/book.dart';
@@ -18,12 +20,32 @@ class BookDetailsScreen extends ConsumerStatefulWidget {
 
 class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
   bool isLoading = false;
-  bool isInProgress = false;
+  Progress? progress;
+  bool isLoadingProgress = true;
+  String get initialCfi => progress?.epubCfi ?? "";
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProgress();
+  }
+
+  Future<void> _loadProgress() async {
+    final repo = ref.read(progressRepositoryProvider);
+    final prog = await repo.loadProgress(widget.book.id);
+    setState(() {
+      progress = prog;
+      isLoadingProgress = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final cover = widget.book.decodedCover;
     final downloadService = ref.read(bookDownloadServiceProvider);
+
+    final isInProgress =
+        progress != null && progress?.epubCfi.isNotEmpty == true;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F8F8),
@@ -69,53 +91,61 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () async {
-                setState(() => isLoading = true);
+              onPressed:
+                  isLoadingProgress
+                      ? null
+                      : () async {
+                        setState(() => isLoading = true);
 
-                final dir = await getApplicationDocumentsDirectory();
-                final isUserAddedBook = widget.book.userId != null;
-                final fileName =
-                    isUserAddedBook
-                        ? "${widget.book.id}.epub"
-                        : "${widget.book.title}-${widget.book.author}"
-                                .replaceAll(' ', '-') +
-                            '.epub';
+                        final dir = await getApplicationDocumentsDirectory();
+                        final isUserAddedBook = widget.book.userId != null;
+                        final fileName =
+                            isUserAddedBook
+                                ? "${widget.book.id}.epub"
+                                : "${widget.book.title}-${widget.book.author}"
+                                        .replaceAll(' ', '-') +
+                                    '.epub';
 
-                final localPath = "${dir.path}/$fileName";
-                File file = File(localPath);
-                bool fileExists = await file.exists();
+                        final localPath = "${dir.path}/$fileName";
+                        File file = File(localPath);
+                        bool fileExists = await file.exists();
 
-                if (!fileExists && !isUserAddedBook) {
-                  final downloadedPath = await downloadService
-                      .downloadBookFromUrl(widget.book.id, fileName);
-                  if (downloadedPath != null) {
-                    fileExists = true;
-                    file = File(downloadedPath);
-                  }
-                }
+                        if (!fileExists && !isUserAddedBook) {
+                          final downloadedPath = await downloadService
+                              .downloadBookFromUrl(widget.book.id, fileName);
+                          if (downloadedPath != null) {
+                            fileExists = true;
+                            file = File(downloadedPath);
+                          }
+                        }
 
-                if (!fileExists) {
-                  setState(() => isLoading = false);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Cartea nu este salvată local."),
-                    ),
-                  );
-                  return;
-                }
+                        if (!fileExists) {
+                          setState(() => isLoading = false);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Cartea nu este salvată local."),
+                            ),
+                          );
+                          return;
+                        }
 
-                if (!context.mounted) return;
-                setState(() => isLoading = false);
+                        if (!context.mounted) return;
+                        setState(() => isLoading = false);
 
-                // În loc de EpubReaderPageView, deschidem WebView-ul:
-                context.push(
-                  '/epub-reader',
-                  extra: {
-                    'filePath': file.path,
-                    'initialCfi': "", // sau ultima poziție salvată
-                  },
-                );
-              },
+                        final result = await context.push(
+                          '/epub-reader',
+                          extra: {
+                            'filePath': file.path,
+                            'initialCfi': initialCfi,
+                            'bookId': widget.book.id,
+                            'hasProgress': progress != null,
+                          },
+                        );
+
+                        if (result == true && mounted) {
+                          await _loadProgress();
+                        }
+                      },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 shape: RoundedRectangleBorder(
@@ -141,7 +171,6 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
                         style: const TextStyle(color: Colors.white),
                       ),
             ),
-
             const SizedBox(height: 20),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),

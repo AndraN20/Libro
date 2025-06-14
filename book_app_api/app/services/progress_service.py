@@ -14,7 +14,7 @@ class ProgressService:
             raise ValueError("progress not found")
         return to_dto(progress)
     
-    def add_progress(self,progressCreateDto:ProgressCreateDto, user_id: int, book_id: int):
+    def add_progress(self,progressCreateDto:ProgressCreateDto, book_id: int, user_id: int ):
 
         progress = self.progress_repository.get_progress_by_user_and_book(user_id, book_id)
         if progress:

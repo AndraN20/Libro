@@ -32,10 +32,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/epub-reader',
         builder: (context, state) {
-          final extras = state.extra as Map<String, dynamic>;
+          final extra = state.extra as Map<String, dynamic>;
           return EpubReaderWebView(
-            epubFilePath: extras['filePath'] as String,
-            initialCfi: extras['initialCfi'] as String? ?? "",
+            epubFilePath: extra['filePath'] as String,
+            initialCfi: extra['initialCfi'] as String? ?? "",
+            bookId: extra['bookId'] as int,
+            hasProgress: extra['hasProgress'] as bool? ?? false,
           );
         },
       ),
