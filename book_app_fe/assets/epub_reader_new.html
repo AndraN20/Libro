@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="file:///android_asset/flutter_assets/assets/" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+      }
+      #viewer {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        overflow: hidden;
+      }
+      .nav {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 50%;
+        z-index: 5;
+        background: transparent;
+      }
+      #prev {
+        left: 0;
+      }
+      #next {
+        right: 0;
+      }
+    </style>
+    <script src="epubjs/jszip.min.js"></script>
+    <script src="epubjs/epub.min.js"></script>
+    <script>
+      let book, rendition;
+      function setupNav() {
+        document.getElementById("prev").onclick = () => rendition.prev();
+        document.getElementById("next").onclick = () => rendition.next();
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "ArrowLeft") rendition.prev();
+          if (e.key === "ArrowRight") rendition.next();
+        });
+      }
+      function openBookData(b64, savedCfi) {
+        book = ePub(b64, { encoding: "base64" });
+        rendition = book.renderTo("viewer", {
+          flow: "paginated",
+          width: "100%",
+          height: "100%",
+          spread: "auto",
+        });
+        rendition.display(savedCfi || undefined);
+        setupNav();
+        rendition.on("relocated", (loc) => {
+          // aici poți adăuga Flutter.postMessage dacă vrei progress
+          // dacă nu, lasă-l așa
+        });
+      }
+      function applySettings(fontSize, fontFamily, bgColor) {
+        if (!rendition) return;
+        rendition.themes.fontSize(fontSize + "px");
+        if (fontFamily) rendition.themes.font(fontFamily);
+      }
+    </script>
+  </head>
+  <body>
+    <div id="viewer"></div>
+    <div id="prev" class="nav"></div>
+    <div id="next" class="nav"></div>
+  </body>
+</html>
