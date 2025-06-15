@@ -29,7 +29,7 @@ class ProgressRepository:
             self.db.rollback()
             raise ValueError(f"progress save failed: {e}")\
             
-    def edit_progress(self, book_id:int, user_id:int, update_data: dict) -> Progress:
+    def edit_progress(self, user_id:int, book_id:int, update_data: dict) -> Progress:
         progress = self.db.query(Progress) \
             .filter(Progress.book_id == book_id, Progress.user_id == user_id) \
             .first()
@@ -48,7 +48,7 @@ class ProgressRepository:
             self.db.rollback()
             raise ValueError(f"progress update failed: {e}")
         
-    def delete_progress(self, book_id:int, user_id:int) -> None:
+    def delete_progress(self, user_id:int, book_id:int) -> None:
         try:
             progress = self.db.query(Progress) \
                 .filter(Progress.book_id == book_id, Progress.user_id == user_id) \

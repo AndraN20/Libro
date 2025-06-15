@@ -60,6 +60,7 @@ class _EpubReaderWebViewState extends ConsumerState<EpubReaderWebView> {
                 final json = jsonDecode(msg.message);
                 if (json is Map && json['cfi'] != null) {
                   _currentCfi = json['cfi'] as String;
+                  // debugPrint("🌈 CFI updated: $_currentCfi");
                 }
               } catch (_) {}
             },

@@ -2,66 +2,92 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <base href="file:///android_asset/flutter_assets/assets/" />
     <style>
       html,
       body {
-        width: 100vw !important;
-        height: 100vh !important;
         margin: 0;
         padding: 0;
-        overflow: hidden !important;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+        background: var(--bg, white);
+        color: var(--text, black);
       }
       #viewer {
-        width: 100vw !important;
-        height: 100vh !important;
-        position: fixed !important;
-        left: 0;
+        position: absolute;
         top: 0;
+        left: 0;
         right: 0;
         bottom: 0;
-        background: var(--bg, white);
-        box-sizing: border-box;
+        overflow: hidden;
       }
-      #viewer iframe {
-        width: 100vw !important;
-        height: 100vh !important;
-        display: block;
-        border: none;
+      .nav {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 50%;
+        z-index: 5;
+        background: transparent;
+        -webkit-tap-highlight-color: transparent;
       }
-      #prevBtn,
-      #nextBtn {
-        z-index: 9999;
-        font-size: 18px;
-        padding: 4px 16px;
+      #prev {
+        left: 0;
+      }
+      #next {
+        right: 0;
       }
     </style>
-    <script src="epubjs/jszip.min.js"></script>
-    <script src="epubjs/epub.min.js"></script>
     <script>
+      // Console forwarding
       const _nativeLog = console.log.bind(console);
       console.log = (...args) => {
-        if (window.Console && Console.postMessage)
-          Console.postMessage(args.join(" "));
+        if (window.Console && window.Console.postMessage)
+          window.Console.postMessage(args.join(" "));
         _nativeLog(...args);
       };
       window.onerror = function (msg, url, line, col, error) {
         console.log("[ERROR]", msg, url, line, col, error);
       };
-
+    </script>
+    <script src="epubjs/jszip.min.js"></script>
+    <script src="epubjs/epub.min.js"></script>
+    <script>
       let book, rendition;
+      let lastCfi = null;
 
       function setupNav() {
-        document.getElementById("prevBtn").onclick = () => {
-          if (rendition) rendition.prev();
-        };
-        document.getElementById("nextBtn").onclick = () => {
-          if (rendition) rendition.next();
-        };
+        document
+          .getElementById("prev")
+          .addEventListener("click", () => rendition.prev());
+        document
+          .getElementById("next")
+          .addEventListener("click", () => rendition.next());
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "ArrowLeft") rendition.prev();
+          if (e.key === "ArrowRight") rendition.next();
+        });
+        // Touch navigation
+        let startX = 0,
+          startY = 0;
+        const threshold = 50;
+        const viewer = document.getElementById("viewer");
+        viewer.addEventListener("touchstart", (e) => {
+          const { clientX, clientY } = e.changedTouches[0];
+          startX = clientX;
+          startY = clientY;
+        });
+        viewer.addEventListener("touchend", (e) => {
+          const { clientX, clientY } = e.changedTouches[0];
+          const dx = clientX - startX;
+          const dy = clientY - startY;
+          if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > threshold) {
+            dx > 0 ? rendition.prev() : rendition.next();
+          }
+        });
       }
 
       function openBookData(b64, savedCfi) {
@@ -70,61 +96,12 @@
           book.locations.generate().then(() => {
             rendition = book.renderTo("viewer", {
               flow: "paginated",
-              width: window.innerWidth - 2,
-              height: window.innerHeight,
-              spread: "none",
-              manager: "default",
+              width: "100%",
+              height: "100%",
+              spread: "auto",
             });
 
-            // ===== FIX 1: Injectăm CSS să ascundem margin/padding/page-breaks/etc =====
-            rendition.hooks.content.register(function (contents) {
-              try {
-                const doc = contents.document;
-                // Set reasonable margins instead of zero
-                doc.documentElement.style.margin = "0";
-                doc.documentElement.style.padding = "0";
-                doc.body.style.margin = "0";
-                doc.body.style.padding = "0";
-                doc.body.style.background = "#fff";
-                // Remove fixed height constraints
-                doc.body.style.minHeight = "100%";
-                doc.documentElement.style.minHeight = "100%";
-
-                // Injectăm CSS global
-                const style = doc.createElement("style");
-                style.innerHTML = `
-                  * { box-sizing: border-box !important; }
-                  body, html { min-height: 100%; }
-                  /* Allow page breaks to render properly */
-                  .pagenum { display: none !important; }
-                  .calibre { margin:0 !important; padding:0 !important; }
-                  p, div { orphans: 3; widows: 3; }
-                `;
-                doc.head.appendChild(style);
-              } catch (e) {
-                console.log("[HOOK ERROR]", e);
-              }
-            });
-
-            window.addEventListener("resize", function () {
-              if (rendition) {
-                // Store current position before resize
-                const currentLocation = rendition.currentLocation();
-                // Resize the rendition
-                rendition.resize(window.innerWidth - 2, window.innerHeight);
-                // If we have a location, restore it after resize
-                if (currentLocation && currentLocation.start) {
-                  setTimeout(() => {
-                    rendition.display(currentLocation.start.cfi);
-                    console.log(
-                      "Restored position after resize:",
-                      currentLocation.start.cfi
-                    );
-                  }, 100);
-                }
-              }
-            });
-
+            // CFI restore
             const displayCfi =
               typeof savedCfi === "string" && savedCfi.length > 0
                 ? savedCfi
@@ -133,48 +110,33 @@
 
             setupNav();
 
-            // Add debug logging for page rendering
-            rendition.on("rendered", (section) => {
-              console.log("Rendered section:", section.href);
-              // Log the content of the rendered section for debugging
+            rendition.on("relocated", (location) => {
               try {
-                const iframe = document.querySelector("#viewer iframe");
-                if (iframe && iframe.contentDocument) {
-                  console.log(
-                    "Section content loaded:",
-                    iframe.contentDocument.body.children.length,
-                    "elements"
+                const cfi = location.start.cfi;
+                lastCfi = cfi; // fallback dacă vrei să accesezi și altundeva
+                const percent = book.locations.percentageFromCfi(cfi) || 0;
+                if (window.Flutter && Flutter.postMessage) {
+                  Flutter.postMessage(
+                    JSON.stringify({ cfi: cfi, percentage: percent })
                   );
                 }
+                console.log(
+                  "Relocated to:",
+                  cfi,
+                  "Page:",
+                  location.start.displayed && location.start.displayed.page
+                );
               } catch (e) {
-                console.log("Error inspecting content:", e);
+                console.log("Error in relocated handler:", e);
               }
             });
 
-            // Add debug logging for page transitions
-            rendition.on("displayed", (event) => {
-              console.log("Page displayed:", event);
+            rendition.on("rendered", (section) => {
+              console.log("Rendered section:", section.href);
             });
 
-            // Add error logging
             rendition.on("error", (error) => {
               console.log("Rendition error:", error);
-            });
-
-            rendition.on("relocated", (location) => {
-              console.log(
-                "Relocated to:",
-                location.start.cfi,
-                "Page:",
-                location.start.displayed.page
-              );
-              const cfi = location.start.cfi;
-              const percent = book.locations.percentageFromCfi(cfi) || 0;
-              if (window.Flutter && Flutter.postMessage) {
-                Flutter.postMessage(
-                  JSON.stringify({ cfi: cfi, percentage: percent })
-                );
-              }
             });
           });
         });
@@ -215,11 +177,7 @@
   </head>
   <body>
     <div id="viewer"></div>
-    <button id="prevBtn" style="position: fixed; top: 20px; left: 20px">
-      Prev
-    </button>
-    <button id="nextBtn" style="position: fixed; top: 20px; left: 80px">
-      Next
-    </button>
+    <div id="prev" class="nav"></div>
+    <div id="next" class="nav"></div>
   </body>
 </html>
