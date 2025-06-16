@@ -2,11 +2,11 @@ import 'package:book_app/core/constants/colors.dart';
 import 'package:book_app/features/books/presentation/viewmodels/book_provider.dart';
 import 'package:book_app/features/books/presentation/widgets/book_carousel.dart';
 import 'package:book_app/features/books/presentation/widgets/book_list.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:book_app/features/books/presentation/screens/book_details_screen.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 
 class LibraryScreen extends ConsumerStatefulWidget {
   const LibraryScreen({super.key});
@@ -32,22 +32,20 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
     try {
       final pdfPath = result.files.single.path!;
       final epubResult = await uploadService.convertPdfAndSaveLocally(pdfPath);
-
       if (epubResult == null || !mounted) return;
 
       final book = await uploadService.fetchBookById(epubResult.bookId);
       if (!mounted) return;
 
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => BookDetailsScreen(book: book)),
-      );
+      context.push('/book-details', extra: book);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Eroare la procesarea fișierului: $e")),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Eroare la procesarea fișierului: $e")),
+        );
+      }
     } finally {
-      setState(() => isLoading = false);
+      if (mounted) setState(() => isLoading = false);
     }
   }
 
@@ -63,7 +61,7 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
         elevation: 0,
         toolbarHeight: 60,
         title: const Padding(
-          padding: EdgeInsets.only(top: 20, left: 40, right: 40), // top moderat
+          padding: EdgeInsets.only(top: 20, left: 40, right: 40),
           child: Text(
             "My Library",
             style: TextStyle(
@@ -92,81 +90,95 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
       body:
           isLoading
               ? const Center(child: CircularProgressIndicator())
-              : SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 40,
-                  horizontal: 20,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    startedBooksAsync.when(
-                      data: (startedBooks) {
-                        if (startedBooks.length >= 3) {
-                          return StartedBooksCarousel(
-                            startedBooks: startedBooks,
-                          );
-                        }
-                        return const SizedBox.shrink();
-                      },
-                      loading: () => const SizedBox.shrink(),
-                      error: (e, st) => const SizedBox.shrink(),
-                    ),
-                    const SizedBox(height: 10),
-                    const Padding(
-                      padding: EdgeInsets.only(left: 20),
-                      child: Text(
-                        "Added Books",
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.darkPurple,
+              : RefreshIndicator(
+                onRefresh: () async {
+                  ref.invalidate(userAddedBookListViewModelProvider);
+                  ref.invalidate(booksProvider);
+                  ref.invalidate(startedBooksProvider);
+                  await Future.delayed(const Duration(milliseconds: 50));
+                },
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 40,
+                    horizontal: 20,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      startedBooksAsync.when(
+                        data: (startedBooks) {
+                          if (startedBooks.length >= 3) {
+                            return StartedBooksCarousel(
+                              startedBooks: startedBooks,
+                            );
+                          }
+                          return const SizedBox.shrink();
+                        },
+                        loading: () => const SizedBox.shrink(),
+                        error: (e, st) => const SizedBox.shrink(),
+                      ),
+                      const SizedBox(height: 10),
+                      const Padding(
+                        padding: EdgeInsets.only(left: 20),
+                        child: Text(
+                          "Added Books",
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.darkPurple,
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 10),
-                    userAddedBooksAsync.when(
-                      loading:
-                          () =>
-                              const Center(child: CircularProgressIndicator()),
-                      error: (e, _) => Text("Error loading user books: $e"),
-                      data:
-                          (books) =>
-                              books.isEmpty
-                                  ? const Padding(
-                                    padding: EdgeInsets.only(left: 20),
-                                    child: Text("No added books yet."),
-                                  )
-                                  : BookList(books: books),
-                    ),
-                    const SizedBox(height: 32),
-                    const Padding(
-                      padding: EdgeInsets.only(left: 20),
-                      child: Text(
-                        "From Our Library",
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.darkPurple,
+                      const SizedBox(height: 10),
+                      userAddedBooksAsync.when(
+                        loading:
+                            () => const Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                        error: (e, _) => Text("Error loading user books: $e"),
+                        data:
+                            (books) =>
+                                books.isEmpty
+                                    ? const Padding(
+                                      padding: EdgeInsets.only(left: 20),
+                                      child: Text("No added books yet."),
+                                    )
+                                    : BookList(books: books),
+                      ),
+                      const SizedBox(height: 32),
+                      const Padding(
+                        padding: EdgeInsets.only(left: 20),
+                        child: Text(
+                          "From Our Library",
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.darkPurple,
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 10),
-                    generalLibraryBooksAsync.when(
-                      loading:
-                          () =>
-                              const Center(child: CircularProgressIndicator()),
-                      error: (e, _) => Text("Error loading general books: $e"),
-                      data:
-                          (books) =>
-                              books.isEmpty
-                                  ? const Padding(
-                                    padding: EdgeInsets.only(left: 20),
-                                    child: Text("No general books available."),
-                                  )
-                                  : BookList(books: books),
-                    ),
-                  ],
+                      const SizedBox(height: 10),
+                      generalLibraryBooksAsync.when(
+                        loading:
+                            () => const Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                        error:
+                            (e, _) => Text("Error loading general books: $e"),
+                        data:
+                            (books) =>
+                                books.isEmpty
+                                    ? const Padding(
+                                      padding: EdgeInsets.only(left: 20),
+                                      child: Text(
+                                        "No general books available.",
+                                      ),
+                                    )
+                                    : BookList(books: books),
+                      ),
+                    ],
+                  ),
                 ),
               ),
     );

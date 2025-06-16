@@ -29,6 +29,13 @@ def get_books_in_progress(book_service: BookService = Depends(get_book_service),
         return book_service.get_books_in_progress_by_user_id(current_user.id)
     except Exception as e:
         raise HTTPException(status_code=404, detail=str(e))
+@router.get("/books/completed")
+def get_completed_books(book_service: BookService = Depends(get_book_service), current_user: User = Depends(get_current_user)):
+    try:
+        return book_service.get_completed_books_by_user_id(current_user.id)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
 
 @router.get("/books/{book_id}", response_model=BookDto)
 def get_book_by_id(book_id: int, book_service: BookService = Depends(get_book_service)):
@@ -76,4 +83,5 @@ def get_book_by_title_and_author(title: str, author: str, book_service: BookServ
         return book
     else:
         raise HTTPException(status_code=404, detail="book not found")
+    
 

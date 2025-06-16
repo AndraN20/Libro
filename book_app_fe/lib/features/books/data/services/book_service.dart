@@ -50,4 +50,11 @@ class BookService {
         .map((json) => BookDto.fromJson(json))
         .toList();
   }
+
+  Future<List<BookDto>> getCompletedBooks() async {
+    final response = await _dio.get('/books/completed');
+    return (response.data as List)
+        .map((json) => BookDto.fromJson(json))
+        .toList();
+  }
 }

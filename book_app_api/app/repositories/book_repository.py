@@ -60,5 +60,11 @@ class BookRepository:
            .filter(Progress.user_id == user_id, Progress.status == StatusEnum.in_progress) \
            .order_by(Progress.last_read_at.desc()) \
            .all()
+
+    def get_completed_books_by_user_id(self, user_id: int) -> List[Book]:
+        return self.db.query(Book) \
+           .join(Progress, Book.id == Progress.book_id) \
+           .filter(Progress.user_id == user_id, Progress.status == StatusEnum.completed) \
+           .all()
     
     

@@ -1,5 +1,8 @@
-import 'package:flutter/material.dart';
+// lib/features/books/presentation/widgets/book_carousel.dart
+
 import 'package:book_app/features/books/domain/models/book.dart';
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class StartedBooksCarousel extends StatefulWidget {
   final List<Book> startedBooks;
@@ -23,8 +26,7 @@ class _StartedBooksCarouselState extends State<StartedBooksCarousel> {
   Widget build(BuildContext context) {
     if (widget.startedBooks.length < 3) return const SizedBox.shrink();
 
-    final coverWidth =
-        MediaQuery.of(context).size.width / 3.15; // ajustează 3.1–3.2 după gust
+    final coverWidth = MediaQuery.of(context).size.width / 3.15;
     final coverHeight = coverWidth * 1.40;
 
     return SizedBox(
@@ -34,7 +36,7 @@ class _StartedBooksCarouselState extends State<StartedBooksCarousel> {
         builder: (context, child) {
           double currentPage =
               _controller.hasClients
-                  ? (_controller.page ?? _controller.initialPage.toDouble())
+                  ? _controller.page ?? _controller.initialPage.toDouble()
                   : _controller.initialPage.toDouble();
 
           return PageView.builder(
@@ -42,15 +44,15 @@ class _StartedBooksCarouselState extends State<StartedBooksCarousel> {
             itemCount: widget.startedBooks.length,
             physics: const BouncingScrollPhysics(),
             itemBuilder: (context, index) {
-              double diff = (currentPage - index.toDouble());
-              double scale = (1 - (diff.abs() * 0.17)).clamp(0.84, 1.0);
+              final diff = currentPage - index;
+              final scale = (1 - (diff.abs() * 0.17)).clamp(0.84, 1.0);
               final isActive = currentPage.round() == index;
               final translateY = isActive ? 0.0 : 12.0 + (diff.abs() * 4);
 
+              final book = widget.startedBooks[index];
+
               return Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 2,
-                ), // Foarte mic!
+                padding: const EdgeInsets.symmetric(horizontal: 2),
                 child: Transform.scale(
                   scale: scale,
                   child: Transform.translate(
@@ -58,25 +60,30 @@ class _StartedBooksCarouselState extends State<StartedBooksCarousel> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Material(
-                          elevation: isActive ? 13 : 2,
-                          borderRadius: BorderRadius.circular(5),
-                          child: ClipRRect(
+                        GestureDetector(
+                          onTap: () {
+                            context.push('/book-details', extra: book);
+                          },
+                          child: Material(
+                            elevation: isActive ? 13 : 2,
                             borderRadius: BorderRadius.circular(5),
-                            child:
-                                widget.startedBooks[index].decodedCover != null
-                                    ? Image.memory(
-                                      widget.startedBooks[index].decodedCover!,
-                                      width: coverWidth,
-                                      height: coverHeight,
-                                      fit: BoxFit.cover,
-                                    )
-                                    : Container(
-                                      width: coverWidth,
-                                      height: coverHeight,
-                                      color: Colors.grey[300],
-                                      child: const Icon(Icons.book, size: 36),
-                                    ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(5),
+                              child:
+                                  book.decodedCover != null
+                                      ? Image.memory(
+                                        book.decodedCover!,
+                                        width: coverWidth,
+                                        height: coverHeight,
+                                        fit: BoxFit.cover,
+                                      )
+                                      : Container(
+                                        width: coverWidth,
+                                        height: coverHeight,
+                                        color: Colors.grey[300],
+                                        child: const Icon(Icons.book, size: 36),
+                                      ),
+                            ),
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -84,7 +91,7 @@ class _StartedBooksCarouselState extends State<StartedBooksCarousel> {
                           width: coverWidth,
                           height: 32,
                           child: Text(
-                            widget.startedBooks[index].title,
+                            book.title,
                             textAlign: TextAlign.center,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
@@ -104,7 +111,7 @@ class _StartedBooksCarouselState extends State<StartedBooksCarousel> {
                           width: coverWidth,
                           height: 15,
                           child: Text(
-                            widget.startedBooks[index].author,
+                            book.author,
                             textAlign: TextAlign.center,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,

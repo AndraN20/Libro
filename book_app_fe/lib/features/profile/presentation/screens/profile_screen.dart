@@ -1,6 +1,7 @@
 import 'dart:typed_data';
+import 'package:book_app/features/books/presentation/viewmodels/book_provider.dart';
+import 'package:book_app/features/books/presentation/widgets/book_carousel.dart';
 import 'package:book_app/features/profile/presentation/widgets/body.dart';
-import 'package:book_app/features/profile/presentation/widgets/book_slide.dart';
 import 'package:book_app/features/profile/presentation/widgets/edit_dialog.dart';
 import 'package:book_app/features/profile/presentation/widgets/header.dart';
 import 'package:book_app/features/profile/presentation/widgets/section_title.dart';
@@ -74,6 +75,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final userAsync = ref.watch(fetchedUserProvider);
+    final completedAsync = ref.watch(completedBooksProvider);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -86,30 +88,56 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               return const Center(child: Text("User not found"));
             }
 
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 15),
-                ProfileHeader(
-                  onEdit: _showEditDialog,
-                  onLogout: () async {
-                    await ref.read(authViewModelProvider.notifier).logout();
-                    if (context.mounted) context.go('/login');
-                  },
-                ),
-                const SizedBox(height: 15),
-                ProfileBody(user: user),
-                const SizedBox(height: 20),
-                const StatsCard(),
-                const SizedBox(height: 30),
-                const SectionTitle(title: "Favourite Books"),
-                const SizedBox(height: 10),
-                const BookSlide(),
-                const SizedBox(height: 30),
-                const SectionTitle(title: "My List"),
-                const SizedBox(height: 10),
-                const BookSlide(),
-              ],
+            return SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(vertical: 15),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 15),
+                  ProfileHeader(
+                    onEdit: _showEditDialog,
+                    onLogout: () async {
+                      await ref.read(authViewModelProvider.notifier).logout();
+                      if (context.mounted) context.go('/login');
+                    },
+                  ),
+                  const SizedBox(height: 15),
+                  ProfileBody(user: user),
+                  const SizedBox(height: 20),
+                  const StatsCard(),
+                  const SizedBox(height: 30),
+
+                  // 🔥 Section for finished books 🔥
+                  const SectionTitle(title: "Finished Books"),
+                  const SizedBox(height: 10),
+                  completedAsync.when(
+                    loading:
+                        () => const Center(
+                          child: SizedBox(
+                            height: 80,
+                            child: CircularProgressIndicator(),
+                          ),
+                        ),
+                    error:
+                        (e, _) => Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: Text("Error loading finished books: $e"),
+                        ),
+                    data: (books) {
+                      if (books.isEmpty) {
+                        return const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 20),
+                          child: Text("You haven't finished any books yet."),
+                        );
+                      }
+                      // reuse StartedBooksCarousel with any list
+                      return StartedBooksCarousel(startedBooks: books);
+                    },
+                  ),
+
+                  const SizedBox(height: 30),
+                ],
+              ),
             );
           },
         ),

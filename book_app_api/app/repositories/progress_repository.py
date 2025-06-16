@@ -12,7 +12,12 @@ class ProgressRepository:
         return self.db.query(Progress) \
             .filter(Progress.user_id == user_id, Progress.book_id == book_id) \
             .first()
-
+    
+    def get_completed_books_by_user_id(self, user_id: int) -> List[Progress]:
+        return self.db.query(Progress) \
+            .filter(Progress.user_id == user_id, Progress.status == StatusEnum.completed) \
+            .options(selectinload(Progress.book)) \
+            .all()
     
     def add_progress(self, progress:Progress) -> Progress:
         progress = Progress(book_id=progress.book_id,

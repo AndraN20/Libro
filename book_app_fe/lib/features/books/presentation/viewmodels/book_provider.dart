@@ -73,3 +73,7 @@ final userAddedBookListViewModelProvider =
 final startedBooksProvider = FutureProvider<List<Book>>((ref) async {
   return ref.watch(bookRepositoryProvider).getBooksInProgress();
 });
+
+final completedBooksProvider = FutureProvider<List<Book>>((ref) async {
+  return ref.watch(bookRepositoryProvider).getCompletedBooks();
+});

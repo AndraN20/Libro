@@ -34,4 +34,9 @@ class BookRepository {
     final dtos = await service.getBooksInProgress();
     return dtos.map((e) => e.toDomain()).toList();
   }
+
+  Future<List<Book>> getCompletedBooks() async {
+    final dtos = await service.getCompletedBooks();
+    return dtos.map((e) => e.toDomain()).toList();
+  }
 }
