@@ -19,7 +19,8 @@ class ProgressRepository:
                             user_id=progress.user_id,
                             epub_cfi=progress.epub_cfi,
                             last_read_at=datetime.now(),
-                            status=StatusEnum.in_progress)
+                            status=StatusEnum.in_progress,
+                            percentage=progress.percentage)
         try:
             self.db.add(progress)
             self.db.commit()

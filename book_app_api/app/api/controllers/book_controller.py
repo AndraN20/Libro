@@ -37,15 +37,7 @@ def get_book_by_id(book_id: int, book_service: BookService = Depends(get_book_se
         return book
     else:
         raise HTTPException(status_code=404, detail="book not found")
-    
-@router.get("/books/users/{user_id}", response_model=list[BookDto])
-def get_books_by_user_id(user_id: int, book_service: BookService = Depends(get_book_service)):
-    books = book_service.get_books_by_user_id(user_id)
-    if books:
-        return books
-    else:
-        raise HTTPException(status_code=404, detail="no books found for this user")
-    
+     
 @router.get("/books/users/{user_id}/added", response_model=list[BookDto])
 def get_user_added_books_by_user_id(user_id: int, book_service: BookService = Depends(get_book_service)):
     books = book_service.get_user_added_books_by_user_id(user_id)
@@ -76,5 +68,12 @@ def delete_book(book_id: int, book_service: BookService = Depends(get_book_servi
         return {"message": "Book deleted successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
+
+@router.get("/books/{title}{author}", response_model=BookDto)
+def get_book_by_title_and_author(title: str, author: str, book_service: BookService = Depends(get_book_service)):
+    book = book_service.get_book_by_title_and_author(title, author)
+    if book:
+        return book
+    else:
+        raise HTTPException(status_code=404, detail="book not found")
 

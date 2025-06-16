@@ -10,7 +10,6 @@ class BookProgressBar extends StatelessWidget {
   final double percentage;
   final VoidCallback onBookRecap;
   final VoidCallback onChapters;
-  // ... restul
 
   const BookProgressBar({
     super.key,
@@ -62,11 +61,12 @@ class BookProgressBar extends StatelessWidget {
           const SizedBox(height: 8),
           LinearProgressIndicator(
             value: percentage,
-            backgroundColor: Colors.grey[200],
-            color: AppColors.primary,
+            backgroundColor: AppColors.lightPurple,
+            color: AppColors.darkPurple,
             minHeight: 5,
             borderRadius: BorderRadius.circular(8),
           ),
+
           const SizedBox(height: 12),
           Row(
             children: [

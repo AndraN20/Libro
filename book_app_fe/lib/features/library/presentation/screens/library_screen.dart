@@ -1,5 +1,6 @@
 import 'package:book_app/core/constants/colors.dart';
 import 'package:book_app/features/books/presentation/viewmodels/book_provider.dart';
+import 'package:book_app/features/books/presentation/widgets/book_carousel.dart';
 import 'package:book_app/features/books/presentation/widgets/book_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -54,26 +55,27 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
   Widget build(BuildContext context) {
     final userAddedBooksAsync = ref.watch(userAddedBookListViewModelProvider);
     final generalLibraryBooksAsync = ref.watch(booksProvider);
+    final startedBooksAsync = ref.watch(startedBooksProvider);
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
-
         elevation: 0,
+        toolbarHeight: 60,
         title: const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 40),
+          padding: EdgeInsets.only(top: 20, left: 40, right: 40), // top moderat
           child: Text(
             "My Library",
             style: TextStyle(
               color: AppColors.darkPurple,
               fontWeight: FontWeight.bold,
-              fontSize: 24,
+              fontSize: 26,
             ),
           ),
         ),
         actions: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40),
+            padding: const EdgeInsets.only(right: 40, top: 20),
             child: IconButton(
               onPressed: isLoading ? null : _handleAddBook,
               icon: SvgPicture.asset(
@@ -98,12 +100,25 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    startedBooksAsync.when(
+                      data: (startedBooks) {
+                        if (startedBooks.length >= 3) {
+                          return StartedBooksCarousel(
+                            startedBooks: startedBooks,
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      },
+                      loading: () => const SizedBox.shrink(),
+                      error: (e, st) => const SizedBox.shrink(),
+                    ),
+                    const SizedBox(height: 10),
                     const Padding(
                       padding: EdgeInsets.only(left: 20),
                       child: Text(
                         "Added Books",
                         style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 22,
                           fontWeight: FontWeight.bold,
                           color: AppColors.darkPurple,
                         ),
@@ -128,9 +143,9 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
                     const Padding(
                       padding: EdgeInsets.only(left: 20),
                       child: Text(
-                        "From General Library",
+                        "From Our Library",
                         style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 22,
                           fontWeight: FontWeight.bold,
                           color: AppColors.darkPurple,
                         ),

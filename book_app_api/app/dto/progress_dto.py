@@ -8,6 +8,7 @@ class ProgressUpdateDto(BaseModel):
     epub_cfi: str | None = None
     last_read_at: datetime = Field(default_factory=datetime.utcnow)
     status: StatusEnum | None = None
+    percentage: float 
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -16,6 +17,7 @@ class ProgressDto(BaseModel):
     epub_cfi: str | None = None
     last_read_at: datetime | None = None
     status: StatusEnum
+    percentage: float 
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -24,5 +26,6 @@ class ProgressCreateDto(BaseModel):
     epub_cfi: str | None = None
     last_read_at: datetime | None = None
     status: StatusEnum
+    percentage: float 
 
     model_config = ConfigDict(from_attributes=True)

@@ -17,6 +17,7 @@ class Progress(Base):
     status: Mapped[StatusEnum] = mapped_column(Enum(StatusEnum), nullable=False, default=StatusEnum.not_started)
     epub_cfi: Mapped[str] = mapped_column(String(1024), nullable=True)
     last_read_at: Mapped[datetime] = mapped_column(DateTime(timezone=True),nullable=True)
+    percentage: Mapped[float] = mapped_column( nullable=True)
 
     user: Mapped["User"] = relationship("User", back_populates="progress")
     book: Mapped["Book"] = relationship("Book", back_populates="progress")

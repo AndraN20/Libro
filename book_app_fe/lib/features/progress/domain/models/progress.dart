@@ -28,11 +28,13 @@ class Progress {
   final String epubCfi;
   final DateTime lastReadAt;
   final ReadingStatus status;
+  final double? percentage;
 
   Progress({
     required this.epubCfi,
     required this.lastReadAt,
     required this.status,
+    this.percentage,
   });
 
   factory Progress.fromJson(Map<String, dynamic> json) {
@@ -40,6 +42,7 @@ class Progress {
       epubCfi: json['epub_cfi'] ?? '',
       lastReadAt: DateTime.parse(json['last_read_at']),
       status: statusFromString(json['status']),
+      percentage: json['percentage']?.toDouble(),
     );
   }
 
@@ -47,5 +50,6 @@ class Progress {
     'epub_cfi': epubCfi,
     'status': statusToString(status),
     'last_read_at': DateTime.now().toIso8601String(),
+    'percentage': percentage,
   };
 }

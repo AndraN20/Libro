@@ -8,7 +8,7 @@ def to_dto(progress: Progress) -> ProgressDto:
         epub_cfi=progress.epub_cfi,
         last_read_at=progress.last_read_at,
         status=progress.status,
-    )
+        percentage=progress.percentage)
 
 def to_entity(dto:ProgressCreateDto,book_id:int, user_id:int)->Progress:
     return Progress(
@@ -16,7 +16,8 @@ def to_entity(dto:ProgressCreateDto,book_id:int, user_id:int)->Progress:
         user_id=user_id,
         epub_cfi=dto.epub_cfi,
         last_read_at=dto.last_read_at,
-        status=dto.status)
+        status=dto.status
+        ,percentage=dto.percentage)
 
 
     

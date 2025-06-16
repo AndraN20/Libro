@@ -60,3 +60,5 @@ class BookRepository:
            .filter(Progress.user_id == user_id, Progress.status == StatusEnum.in_progress) \
            .order_by(Progress.last_read_at.desc()) \
            .all()
+    
+    

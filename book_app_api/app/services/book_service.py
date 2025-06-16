@@ -45,9 +45,7 @@ class BookService:
         books = self.book_repository.get_books_by_user_id(user_id)
         return [to_dto(book) for book in books]
         
-    def get_books_by_title(self, query: str) -> list[BookDto]:
-        books = self.book_repository.get_books_by_title(query)
-        return [to_dto(book) for book in books]
+    
     def get_books_by_genre(self, genre: str) -> list[Book]:
         if genre.lower() == "all":
             return self.book_repository.get_all_books()
@@ -72,3 +70,4 @@ class BookService:
     def get_books_in_progress_by_user_id(self, user_id: int) -> List[BookDto]:
         books = self.book_repository.get_books_by_user_id(user_id)
         return [to_dto(book) for book in books if book.progress]
+    

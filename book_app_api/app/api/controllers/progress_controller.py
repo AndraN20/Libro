@@ -30,6 +30,7 @@ def get_user_progress_for_book(
 @router.post("/progress/{book_id}", response_model=ProgressDto)
 def add_progress( book_id: int, progressCreateDto:ProgressCreateDto ,progress_service: ProgressService = Depends(get_progress_service), current_user: User = Depends(get_current_user)):
     try:
+        print(f"progress percentage: {progressCreateDto.percentage}")
         return progress_service.add_progress(progressCreateDto, book_id, current_user.id)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

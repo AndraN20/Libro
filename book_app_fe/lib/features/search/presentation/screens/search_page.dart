@@ -97,7 +97,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                 itemCount: books.length,
                 itemBuilder: (context, index) {
                   final book = books[index];
-                  return BookCard(book: book, isStarted: false);
+                  return BookCard(book: book);
                 },
               );
             },

@@ -26,6 +26,7 @@ class ProgressService {
 
   Future<void> createProgress(int bookId, Progress progress) async {
     try {
+      print("!!!!!!! progress percentage: ${progress.percentage} !!!!!!!!!!!");
       await dio.post('/progress/$bookId', data: progress.toJson());
     } on DioException catch (e) {
       throw Exception("Failed to create progress: ${e.response?.data}");

@@ -178,14 +178,13 @@ class _EpubReaderWebViewState extends ConsumerState<EpubReaderWebView> {
 
     final repo = ref.read(progressRepositoryProvider);
 
-    // Determine if the book is completed based on percentage
-    // Consider a book completed if the user has read more than 95% of it
     final isCompleted = _percentage >= 0.95;
 
     final progress = Progress(
       epubCfi: _currentCfi!,
       lastReadAt: DateTime.now(),
       status: isCompleted ? ReadingStatus.completed : ReadingStatus.inProgress,
+      percentage: _percentage,
     );
 
     try {
