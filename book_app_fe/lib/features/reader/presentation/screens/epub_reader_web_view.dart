@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:book_app/core/constants/colors.dart';
 import 'package:book_app/features/progress/domain/models/progress.dart';
 import 'package:book_app/features/progress/presentation/viewmodels/reader_progress_provider.dart';
+import 'package:book_app/features/progress/presentation/widgets/reader_progress_bar.dart';
 import 'package:book_app/features/reader/presentation/widgets/reader_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -34,6 +34,11 @@ class _EpubReaderWebViewState extends ConsumerState<EpubReaderWebView> {
   double _fontSize = 16;
   String _fontFamily = 'serif';
   Color _bgColor = Colors.white;
+  double _percentage = 0.0;
+  int _page = 1;
+  int _totalPages = 1;
+  String _chapter = "";
+  List<Map<String, dynamic>> _chapters = [];
 
   bool showOverlay = false;
   late bool _hasProgress;
@@ -58,9 +63,25 @@ class _EpubReaderWebViewState extends ConsumerState<EpubReaderWebView> {
             onMessageReceived: (msg) {
               try {
                 final json = jsonDecode(msg.message);
-                if (json is Map && json['cfi'] != null) {
-                  _currentCfi = json['cfi'] as String;
-                  // debugPrint("🌈 CFI updated: $_currentCfi");
+                if (json is Map) {
+                  if (json['cfi'] != null) {
+                    _currentCfi = json['cfi'] as String;
+                    setState(() {
+                      _percentage =
+                          (json['percentage'] as num?)?.toDouble() ?? 0.0;
+                      _page = (json['page'] as num?)?.toInt() ?? 1;
+                      _totalPages = (json['totalPages'] as num?)?.toInt() ?? 1;
+                      if (json['chapter'] != null) {
+                        _chapter = json['chapter'] as String;
+                      }
+                    });
+                  }
+                  // <-- Prinde TOC-ul!
+                  if (json['toc'] != null) {
+                    setState(() {
+                      _chapters = List<Map<String, dynamic>>.from(json['toc']);
+                    });
+                  }
                 }
               } catch (_) {}
             },
@@ -91,6 +112,45 @@ class _EpubReaderWebViewState extends ConsumerState<EpubReaderWebView> {
     );
   }
 
+  void _openChaptersSheet() {
+    if (_chapters.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Nu s-au putut încărca capitolele.")),
+      );
+      return;
+    }
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
+      ),
+      builder: (context) {
+        return ListView.separated(
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+          itemCount: _chapters.length,
+          separatorBuilder: (_, __) => const Divider(),
+          itemBuilder: (_, index) {
+            final chapter = _chapters[index];
+            return ListTile(
+              title: Text(
+                chapter['label'] ?? "Untitled",
+                style: const TextStyle(fontSize: 16),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                final cfi = chapter['cfi'];
+                if (cfi != null && cfi.isNotEmpty) {
+                  _controller.runJavaScript('rendition.display("$cfi")');
+                }
+              },
+            );
+          },
+        );
+      },
+    );
+  }
+
   void _openSettings() {
     showDialog(
       context: context,
@@ -113,29 +173,34 @@ class _EpubReaderWebViewState extends ConsumerState<EpubReaderWebView> {
     );
   }
 
-  Future<void> _saveProgress() async {
-    if (_currentCfi == null || _currentCfi!.isEmpty) return;
+  Future<bool> _saveProgress() async {
+    if (_currentCfi == null || _currentCfi!.isEmpty) return false;
 
     final repo = ref.read(progressRepositoryProvider);
+
+    // Determine if the book is completed based on percentage
+    // Consider a book completed if the user has read more than 95% of it
+    final isCompleted = _percentage >= 0.95;
+
     final progress = Progress(
       epubCfi: _currentCfi!,
       lastReadAt: DateTime.now(),
-      status: ReadingStatus.inProgress,
+      status: isCompleted ? ReadingStatus.completed : ReadingStatus.inProgress,
     );
 
     try {
       if (!_hasProgress) {
-        print("📘 Se face POST!");
         await repo.createProgress(bookId: widget.bookId, progress: progress);
         setState(() {
           _hasProgress = true;
         });
       } else {
-        print("📗 Se face PATCH!");
         await repo.updateProgress(bookId: widget.bookId, progress: progress);
       }
+      return true;
     } catch (e) {
       debugPrint("❌ Failed to save progress: $e");
+      return false;
     }
   }
 
@@ -143,8 +208,9 @@ class _EpubReaderWebViewState extends ConsumerState<EpubReaderWebView> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        await _saveProgress();
-        return true;
+        final saved = await _saveProgress();
+        if (context.mounted) context.pop(saved);
+        return false;
       },
       child: Scaffold(
         body: GestureDetector(
@@ -192,8 +258,8 @@ class _EpubReaderWebViewState extends ConsumerState<EpubReaderWebView> {
                                 color: AppColors.darkPurple,
                               ),
                               onPressed: () async {
-                                await _saveProgress();
-                                if (context.mounted) context.pop(true);
+                                final saved = await _saveProgress();
+                                if (context.mounted) context.pop(saved);
                               },
                             ),
                             IconButton(
@@ -207,6 +273,20 @@ class _EpubReaderWebViewState extends ConsumerState<EpubReaderWebView> {
                         ),
                       ],
                     ),
+                  ),
+                ),
+              if (showOverlay)
+                Positioned(
+                  left: 16,
+                  right: 16,
+                  bottom: 32,
+                  child: BookProgressBar(
+                    chapter: _chapter,
+                    page: _page,
+                    totalPages: _totalPages,
+                    percentage: _percentage,
+                    onBookRecap: () {},
+                    onChapters: _openChaptersSheet,
                   ),
                 ),
             ],

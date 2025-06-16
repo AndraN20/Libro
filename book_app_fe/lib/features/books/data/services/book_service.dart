@@ -43,4 +43,11 @@ class BookService {
   Future<void> deleteBook(int bookId) async {
     await _dio.delete('/books/$bookId');
   }
+
+  Future<List<BookDto>> getBooksInProgress() async {
+    final response = await _dio.get('/books/in-progress');
+    return (response.data as List)
+        .map((json) => BookDto.fromJson(json))
+        .toList();
+  }
 }

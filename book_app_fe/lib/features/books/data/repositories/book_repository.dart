@@ -30,8 +30,8 @@ class BookRepository {
     await service.deleteBook(bookId);
   }
 
-  Future<List<Book>> getStartedBooks(int userId) async {
-    final dtos = await service.getStartedBooks(userId);
+  Future<List<Book>> getBooksInProgress() async {
+    final dtos = await service.getBooksInProgress();
     return dtos.map((e) => e.toDomain()).toList();
   }
 }

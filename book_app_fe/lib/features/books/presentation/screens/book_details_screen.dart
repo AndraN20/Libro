@@ -63,8 +63,8 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
                   ),
                   Positioned.fill(
                     child: BackdropFilter(
-                      filter: ui.ImageFilter.blur(sigmaX: 25, sigmaY: 25),
-                      child: Container(color: Colors.white.withOpacity(0.60)),
+                      filter: ui.ImageFilter.blur(sigmaX: 25, sigmaY: 50),
+                      child: Container(color: Colors.white.withOpacity(0.10)),
                     ),
                   ),
                   Positioned.fill(
@@ -78,7 +78,7 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
                             Colors.white,
                             Colors.white,
                           ],
-                          stops: [0.0, 0.65, 1.0],
+                          stops: [0.0, 0.95, 1.0],
                         ),
                       ),
                     ),
@@ -113,10 +113,10 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
                     child: IconButton(
                       icon: Icon(
                         Icons.arrow_back,
-                        color: AppColors.primary,
+                        color: AppColors.darkPurple,
                         size: 26,
                       ),
-                      onPressed: () => Navigator.pop(context),
+                      onPressed: () => context.pop(true),
                     ),
                   ),
                 ),
@@ -140,14 +140,24 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
                   ),
                 ),
                 const SizedBox(height: 25),
-                Text(
-                  widget.book.title,
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.darkPurple,
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 32,
+                    vertical: 4,
+                  ),
+                  child: Text(
+                    widget.book.title,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.darkPurple,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
+
                 Text(
                   widget.book.author,
                   style: const TextStyle(
@@ -254,7 +264,7 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
                     style: const TextStyle(
                       fontSize: 14,
                       height: 1.5,
-                      color: AppColors.lightPurple,
+                      color: AppColors.grey,
                     ),
                     textAlign: TextAlign.center,
                   ),

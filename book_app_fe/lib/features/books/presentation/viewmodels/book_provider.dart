@@ -21,14 +21,6 @@ final booksProvider = FutureProvider<List<Book>>((ref) async {
   return ref.watch(bookRepositoryProvider).getBooks();
 });
 
-final startedBooksProvider = FutureProvider.family<List<Book>, int>((
-  ref,
-  userId,
-) async {
-  final repo = ref.watch(bookRepositoryProvider);
-  return await repo.getStartedBooks(userId);
-});
-
 final userAddedBooksProvider = FutureProvider.family<List<Book>, int>((
   ref,
   userId,
@@ -77,3 +69,7 @@ final userAddedBookListViewModelProvider =
       viewModel.loadUserBooks();
       return viewModel;
     });
+
+final startedBooksProvider = FutureProvider<List<Book>>((ref) async {
+  return ref.watch(bookRepositoryProvider).getBooksInProgress();
+});

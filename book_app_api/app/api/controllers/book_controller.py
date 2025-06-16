@@ -23,6 +23,13 @@ def get_books(book_service: BookService = Depends(get_book_service)):
 def get_book_covers_with_titles(book_service = Depends(get_book_service)):
     return book_service.get_book_covers_with_titles()
 
+@router.get("/books/in-progress")
+def get_books_in_progress(book_service: BookService = Depends(get_book_service), current_user: User = Depends(get_current_user)):
+    try:
+        return book_service.get_books_in_progress_by_user_id(current_user.id)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
 @router.get("/books/{book_id}", response_model=BookDto)
 def get_book_by_id(book_id: int, book_service: BookService = Depends(get_book_service)):
     book = book_service.get_book_by_id(book_id)
@@ -69,3 +76,5 @@ def delete_book(book_id: int, book_service: BookService = Depends(get_book_servi
         return {"message": "Book deleted successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+

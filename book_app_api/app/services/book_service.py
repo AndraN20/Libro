@@ -68,3 +68,7 @@ class BookService:
     def get_user_added_books_by_user_id(self, user_id: int) -> List[BookDto]:
         books = self.book_repository.get_user_added_books_by_user_id(user_id)
         return [to_dto(book) for book in books]
+    
+    def get_books_in_progress_by_user_id(self, user_id: int) -> List[BookDto]:
+        books = self.book_repository.get_books_by_user_id(user_id)
+        return [to_dto(book) for book in books if book.progress]

@@ -1,3 +1,5 @@
+from app.entities.enums.status_enum import StatusEnum
+from app.entities.progress import Progress
 from sqlalchemy.orm import Session
 from app.entities.book import Book
 from typing import List, Optional
@@ -51,3 +53,10 @@ class BookRepository:
        
     def get_user_added_books_by_user_id(self, user_id: int) -> List[Book]:
         return self.db.query(Book).filter(Book.user_id == user_id).all()
+    
+    def get_books_in_progress_by_user_id(self, user_id: int) -> List[Book]:
+        return self.db.query(Book) \
+           .join(Progress, Book.id == Progress.book_id) \
+           .filter(Progress.user_id == user_id, Progress.status == StatusEnum.in_progress) \
+           .order_by(Progress.last_read_at.desc()) \
+           .all()

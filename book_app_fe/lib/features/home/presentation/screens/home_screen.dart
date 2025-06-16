@@ -7,6 +7,7 @@ import 'package:book_app/features/books/presentation/widgets/book_list.dart';
 import 'package:book_app/features/home/presentation/widgets/welcome_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:book_app/core/providers/route_observer_provider.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -15,7 +16,31 @@ class HomeScreen extends ConsumerStatefulWidget {
   _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends ConsumerState<HomeScreen> {
+class _HomeScreenState extends ConsumerState<HomeScreen> with RouteAware {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final observer = ref.read(routeObserverProvider);
+    observer.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
+  void dispose() {
+    final observer = ref.read(routeObserverProvider);
+    observer.unsubscribe(this);
+    super.dispose();
+  }
+
+  // Se cheamă când revii din BookDetails/Reader etc
+  @override
+  void didPopNext() async {
+    ref.invalidate(startedBooksProvider);
+    ref.invalidate(booksProvider);
+    await Future.delayed(const Duration(milliseconds: 10));
+    setState(() {});
+    super.didPopNext();
+  }
+
   @override
   Widget build(BuildContext context) {
     final authAsync = ref.watch(currentUserProvider);
@@ -34,7 +59,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         }
 
         final booksAsync = ref.watch(booksProvider);
-        final startedBooksAsync = ref.watch(startedBooksProvider(user.id));
+        final startedBooksAsync = ref.watch(startedBooksProvider);
 
         return booksAsync.when(
           loading:
@@ -53,8 +78,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   () => const Scaffold(
                     body: Center(child: CircularProgressIndicator()),
                   ),
-              error: (err, _) => _buildScaffold(fanBooks, []),
-              data: (startedBooks) => _buildScaffold(fanBooks, startedBooks),
+              error: (err, _) {
+                print(">> startedBooksAsync error: $err");
+                return _buildScaffold(fanBooks, []);
+              },
+              data: (startedBooks) {
+                print(">> startedBooks.length = ${startedBooks.length}");
+                return _buildScaffold(fanBooks, startedBooks);
+              },
             );
           },
         );
@@ -66,36 +97,77 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final hasStartedBooks = startedBooks.isNotEmpty;
     final sectionBooks = hasStartedBooks ? startedBooks : fanBooks;
 
+    print(
+      ">> buildScaffold: hasStartedBooks=$hasStartedBooks, sectionBooks=${sectionBooks.length}",
+    );
+
     return Scaffold(
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(vertical: 24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const WelcomeHeader(),
-            const SizedBox(height: 24),
-            BookFan(books: fanBooks),
-            const SizedBox(height: 24),
-            Padding(
-              padding: const EdgeInsets.only(left: 35),
-              child: Text(
-                hasStartedBooks ? 'Continue reading' : 'Start reading',
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                ).copyWith(color: AppColors.darkPurple),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          ref.invalidate(startedBooksProvider);
+          ref.invalidate(booksProvider);
+          await Future.delayed(const Duration(milliseconds: 10));
+          setState(() {});
+        },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.symmetric(vertical: 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const WelcomeHeader(),
+              const SizedBox(height: 24),
+              BookFan(books: fanBooks),
+              const SizedBox(height: 24),
+              Padding(
+                padding: const EdgeInsets.only(left: 35, right: 20),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      hasStartedBooks ? 'Continue reading' : 'Start reading',
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                      ).copyWith(color: AppColors.darkPurple),
+                    ),
+                    if (hasStartedBooks) ...[
+                      const SizedBox(width: 10),
+                      // Bulina gri
+                      Container(
+                        width: 7,
+                        height: 7,
+                        decoration: const BoxDecoration(
+                          color: AppColors.lightPurple,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      // Numărul de cărți
+                      Text(
+                        '${startedBooks.length} ${startedBooks.length == 1 ? 'book' : 'books'}',
+                        style: const TextStyle(
+                          fontSize: 15,
+                          color: AppColors.lightPurple,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 25),
-              child: Divider(
-                thickness: 1,
-                height: 4,
-                color: AppColors.darkPurple.withAlpha(51),
+
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 25),
+                child: Divider(
+                  thickness: 1,
+                  height: 4,
+                  color: AppColors.darkPurple.withAlpha(51),
+                ),
               ),
-            ),
-            BookList(books: sectionBooks),
-          ],
+              BookList(books: sectionBooks),
+            ],
+          ),
         ),
       ),
     );

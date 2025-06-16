@@ -1,6 +1,7 @@
 import 'package:book_app/core/constants/navigation_keys.dart';
 import 'package:book_app/core/constants/route_names.dart';
 import 'package:book_app/core/providers/is_logged_in_provider.dart';
+import 'package:book_app/core/providers/route_observer_provider.dart';
 import 'package:book_app/core/screens/main_screen.dart';
 import 'package:book_app/features/auth/presentation/screens/login_screen.dart';
 import 'package:book_app/features/books/domain/models/book.dart';
@@ -16,9 +17,11 @@ import 'package:go_router/go_router.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   final isLoggedInAsync = ref.watch(isLoggedInProvider);
+  final routeObserver = ref.watch(routeObserverProvider);
 
   return GoRouter(
     navigatorKey: navigatorKey,
+    observers: [routeObserver],
     initialLocation: RouteNames.loading,
     routes: [
       GoRoute(path: RouteNames.login, builder: (_, __) => const LoginScreen()),
@@ -49,6 +52,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(path: '/home', builder: (_, __) => const HomeScreen()),
           GoRoute(path: '/library', builder: (_, __) => const LibraryScreen()),
           GoRoute(path: '/search', builder: (_, __) => const SearchScreen()),
+          GoRoute(path: '/profile', builder: (_, __) => const ProfileScreen()),
           GoRoute(
             path: '/book-details',
             builder: (context, state) {
@@ -56,7 +60,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               return BookDetailsScreen(book: book);
             },
           ),
-          GoRoute(path: '/profile', builder: (_, __) => const ProfileScreen()),
         ],
       ),
     ],

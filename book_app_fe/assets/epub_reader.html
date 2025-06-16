@@ -42,7 +42,6 @@
       }
     </style>
     <script>
-      // Console forwarding
       const _nativeLog = console.log.bind(console);
       console.log = (...args) => {
         if (window.Console && window.Console.postMessage)
@@ -70,16 +69,18 @@
           if (e.key === "ArrowLeft") rendition.prev();
           if (e.key === "ArrowRight") rendition.next();
         });
-        // Touch navigation
+
         let startX = 0,
           startY = 0;
         const threshold = 50;
         const viewer = document.getElementById("viewer");
+
         viewer.addEventListener("touchstart", (e) => {
           const { clientX, clientY } = e.changedTouches[0];
           startX = clientX;
           startY = clientY;
         });
+
         viewer.addEventListener("touchend", (e) => {
           const { clientX, clientY } = e.changedTouches[0];
           const dx = clientX - startX;
@@ -88,6 +89,51 @@
             dx > 0 ? rendition.prev() : rendition.next();
           }
         });
+      }
+
+      function flattenToc(items) {
+        let out = [];
+        for (const item of items) {
+          out.push({
+            label: item.label,
+            href: item.href,
+            cfi: item.href ? book.cfiFromHref(item.href) : null,
+          });
+          if (item.subitems && item.subitems.length) {
+            out = out.concat(flattenToc(item.subitems));
+          }
+        }
+        return out;
+      }
+
+      function sendTocToFlutter() {
+        if (!book) return;
+        book.loaded.navigation.then((toc) => {
+          const chapters = flattenToc(toc.toc);
+          if (window.Flutter && Flutter.postMessage) {
+            Flutter.postMessage(JSON.stringify({ toc: chapters }));
+          }
+        });
+      }
+
+      function normalizeHref(href) {
+        return href?.split("#")[0].split("?")[0] || "";
+      }
+
+      function findBestChapterMatch(href, toc) {
+        if (!href || !toc || !toc.length) return "";
+        const normalizedHref = normalizeHref(href);
+        const exact = toc.find(
+          (item) => normalizeHref(item.href) === normalizedHref
+        );
+        if (exact) return exact.label;
+        const baseHref = normalizedHref.split("#")[0];
+        const partial = toc.find((item) => {
+          if (!item.href) return false;
+          return baseHref.endsWith(item.href.split("#")[0]);
+        });
+        if (partial) return partial.label;
+        return "";
       }
 
       function openBookData(b64, savedCfi) {
@@ -100,31 +146,66 @@
               height: "100%",
               spread: "auto",
             });
-
-            // CFI restore
+            sendTocToFlutter();
             const displayCfi =
               typeof savedCfi === "string" && savedCfi.length > 0
                 ? savedCfi
                 : undefined;
             rendition.display(displayCfi);
-
             setupNav();
 
-            rendition.on("relocated", (location) => {
+            rendition.on("relocated", async (location) => {
               try {
                 const cfi = location.start.cfi;
-                lastCfi = cfi; // fallback dacă vrei să accesezi și altundeva
+                lastCfi = cfi;
                 const percent = book.locations.percentageFromCfi(cfi) || 0;
+                const page = location.start.displayed?.page || 1;
+                const totalPages = location.start.displayed?.total || 1;
+
+                let chapterTitle = "";
+                const toc = book.navigation && book.navigation.toc;
+
+                if (toc && location.start.href) {
+                  chapterTitle = findBestChapterMatch(location.start.href, toc);
+                }
+
+                // Fallback dacă nu găsim capitol în TOC
+                if (!chapterTitle) {
+                  const contents = rendition.getContents();
+                  for (const content of contents) {
+                    const headings = content.document.querySelectorAll(
+                      "h1, h2, .chapter-title"
+                    );
+                    for (const h of headings) {
+                      const text = h.textContent?.trim();
+                      if (text && text.length > 0) {
+                        chapterTitle = text;
+                        break;
+                      }
+                    }
+                    if (chapterTitle) break;
+                  }
+                }
+
                 if (window.Flutter && Flutter.postMessage) {
                   Flutter.postMessage(
-                    JSON.stringify({ cfi: cfi, percentage: percent })
+                    JSON.stringify({
+                      cfi: cfi,
+                      percentage: percent,
+                      page: page,
+                      totalPages: totalPages,
+                      chapter: chapterTitle,
+                    })
                   );
                 }
+
                 console.log(
                   "Relocated to:",
                   cfi,
                   "Page:",
-                  location.start.displayed && location.start.displayed.page
+                  page,
+                  "Chapter:",
+                  chapterTitle
                 );
               } catch (e) {
                 console.log("Error in relocated handler:", e);
@@ -158,6 +239,7 @@
         });
         rendition.themes.select("custom");
       }
+
       function isDark(hexColor) {
         const rgb = hexToRgb(hexColor);
         if (!rgb) return false;
@@ -165,6 +247,7 @@
         const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
         return luminance < 128;
       }
+
       function hexToRgb(hex) {
         const cleanHex = hex.replace("#", "");
         if (cleanHex.length !== 6) return null;
