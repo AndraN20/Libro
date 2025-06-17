@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 import 'package:book_app/features/books/presentation/viewmodels/book_provider.dart';
-import 'package:book_app/features/books/presentation/widgets/book_carousel.dart';
+import 'package:book_app/features/books/presentation/widgets/book_slide.dart';
 import 'package:book_app/features/profile/presentation/widgets/body.dart';
 import 'package:book_app/features/profile/presentation/widgets/edit_dialog.dart';
 import 'package:book_app/features/profile/presentation/widgets/header.dart';
@@ -130,8 +130,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           child: Text("You haven't finished any books yet."),
                         );
                       }
-                      // reuse StartedBooksCarousel with any list
-                      return StartedBooksCarousel(startedBooks: books);
+
+                      return BookSlider(books: books);
                     },
                   ),
 

@@ -11,6 +11,11 @@ class BookService {
     return (response.data as List).map((e) => BookDto.fromJson(e)).toList();
   }
 
+  Future<BookDto> getBook(int bookId) async {
+    final response = await _dio.get('/books/$bookId');
+    return BookDto.fromJson(response.data);
+  }
+
   Future<List<BookDto>> fetchUserAddedBooksByUserId(int userId) async {
     final response = await _dio.get('/books/users/$userId/added');
     return (response.data as List).map((e) => BookDto.fromJson(e)).toList();

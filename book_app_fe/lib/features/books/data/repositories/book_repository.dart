@@ -11,6 +11,11 @@ class BookRepository {
     return dtos.map((e) => e.toDomain()).toList();
   }
 
+  Future<Book> getBook(int bookId) async {
+    final dto = await service.getBook(bookId);
+    return dto.toDomain();
+  }
+
   Future<List<Book>> getUserAddedBooksByUserId(int userId) async {
     final dtos = await service.fetchUserAddedBooksByUserId(userId);
     return dtos.map((e) => e.toDomain()).toList();

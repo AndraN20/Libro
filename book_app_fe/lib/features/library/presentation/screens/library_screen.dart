@@ -1,6 +1,6 @@
 import 'package:book_app/core/constants/colors.dart';
 import 'package:book_app/features/books/presentation/viewmodels/book_provider.dart';
-import 'package:book_app/features/books/presentation/widgets/book_carousel.dart';
+import 'package:book_app/features/books/presentation/widgets/book_slide.dart';
 import 'package:book_app/features/books/presentation/widgets/book_list.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -109,9 +109,7 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
                       startedBooksAsync.when(
                         data: (startedBooks) {
                           if (startedBooks.length >= 3) {
-                            return StartedBooksCarousel(
-                              startedBooks: startedBooks,
-                            );
+                            return BookSlider(books: startedBooks);
                           }
                           return const SizedBox.shrink();
                         },
