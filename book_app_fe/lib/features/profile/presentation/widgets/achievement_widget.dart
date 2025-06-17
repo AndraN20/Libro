@@ -13,15 +13,20 @@ const achievementLevels = [
     'desc': 'Congrats for your first finished book!',
   },
   {
+    'count': 2,
+    'label': '📗 Fresh Reader',
+    'desc': 'You\'ve finished 2 books! Good job!',
+  },
+  {
     'count': 3,
     'label': '📚 Bookworm',
-    'desc': 'You\'ve finished 3 books! Keep it up!',
+    'desc': 'You\'ve finished 3+ books! Keep it up!',
   },
   {'count': 5, 'label': '🏅 Pro Reader', 'desc': '5 books down, impressive!'},
   {
     'count': 10,
     'label': '🌟 Star Reader',
-    'desc': '10 finished books. You\'re a star!',
+    'desc': '10+ finished books. You\'re a star!',
   },
   {
     'count': 20,

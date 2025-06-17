@@ -39,9 +39,10 @@ class _EpubReaderWebViewState extends ConsumerState<EpubReaderWebView> {
   int _totalPages = 1;
   String _chapter = "";
   List<Map<String, dynamic>> _chapters = [];
-
+  String _bookText = "";
   bool showOverlay = false;
   late bool _hasProgress;
+  bool _waitingForRecap = false;
 
   @override
   void initState() {
@@ -64,6 +65,18 @@ class _EpubReaderWebViewState extends ConsumerState<EpubReaderWebView> {
               try {
                 final json = jsonDecode(msg.message);
                 if (json is Map) {
+                  if (json['bookText'] != null) {
+                    setState(() {
+                      _bookText = json['bookText'] as String? ?? "";
+                    });
+                    print("Book text loaded. Length: ${_bookText.length}");
+                  }
+                  if (_waitingForRecap) {
+                    _waitingForRecap = false;
+                    if (context.mounted) {
+                      context.push('/recap', extra: _bookText);
+                    }
+                  }
                   if (json['cfi'] != null) {
                     _currentCfi = json['cfi'] as String;
                     setState(() {
@@ -93,6 +106,9 @@ class _EpubReaderWebViewState extends ConsumerState<EpubReaderWebView> {
   }
 
   Future<void> _loadEpub() async {
+    setState(() {
+      _bookText = "";
+    });
     final file = File(widget.epubFilePath);
     if (!await file.exists()) return;
     final bytes = await file.readAsBytes();
@@ -114,11 +130,15 @@ class _EpubReaderWebViewState extends ConsumerState<EpubReaderWebView> {
 
   void _openChaptersSheet() {
     if (_chapters.isEmpty) {
+      print('TOC gol!');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Nu s-au putut încărca capitolele.")),
       );
       return;
+    } else {
+      print('TOC incarcat: $_chapters');
     }
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
@@ -138,10 +158,19 @@ class _EpubReaderWebViewState extends ConsumerState<EpubReaderWebView> {
                 style: const TextStyle(fontSize: 16),
               ),
               onTap: () {
+                print('Capitol selectat: $chapter');
                 Navigator.pop(context);
-                final cfi = chapter['cfi'];
-                if (cfi != null && cfi.isNotEmpty) {
-                  _controller.runJavaScript('rendition.display("$cfi")');
+                final href = chapter['href'];
+                if (href != null && href.isNotEmpty) {
+                  final hrefJs = jsonEncode(href);
+                  _controller.runJavaScript('rendition.display($hrefJs)');
+                } else {
+                  print("Href lipsă sau gol pentru capitolul: $chapter");
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Nu există link pentru acest capitol."),
+                    ),
+                  );
                 }
               },
             );
@@ -200,6 +229,22 @@ class _EpubReaderWebViewState extends ConsumerState<EpubReaderWebView> {
     } catch (e) {
       debugPrint("❌ Failed to save progress: $e");
       return false;
+    }
+  }
+
+  void _handleBookRecap() async {
+    _waitingForRecap = true;
+    await _controller.runJavaScript('sendBookTextToFlutter()');
+    // Navigarea va fi declanșată automat când bookText ajunge pe canal
+  }
+
+  @override
+  void didUpdateWidget(covariant EpubReaderWebView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.epubFilePath != widget.epubFilePath) {
+      setState(() {
+        _bookText = "";
+      });
     }
   }
 
@@ -284,8 +329,9 @@ class _EpubReaderWebViewState extends ConsumerState<EpubReaderWebView> {
                     page: _page,
                     totalPages: _totalPages,
                     percentage: _percentage,
-                    onBookRecap: () {},
+                    onBookRecap: _handleBookRecap,
                     onChapters: _openChaptersSheet,
+                    bookText: _bookText,
                   ),
                 ),
             ],

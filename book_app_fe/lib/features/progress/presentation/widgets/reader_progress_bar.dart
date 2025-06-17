@@ -10,6 +10,7 @@ class BookProgressBar extends StatelessWidget {
   final double percentage;
   final VoidCallback onBookRecap;
   final VoidCallback onChapters;
+  final String bookText;
 
   const BookProgressBar({
     super.key,
@@ -19,6 +20,7 @@ class BookProgressBar extends StatelessWidget {
     required this.percentage,
     required this.onBookRecap,
     required this.onChapters,
+    required this.bookText,
   });
 
   @override
@@ -26,7 +28,7 @@ class BookProgressBar extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.white,
         borderRadius: BorderRadius.circular(18),
         boxShadow: [BoxShadow(blurRadius: 6, color: Colors.black12)],
       ),
@@ -66,14 +68,14 @@ class BookProgressBar extends StatelessWidget {
             minHeight: 5,
             borderRadius: BorderRadius.circular(8),
           ),
-
           const SizedBox(height: 12),
           Row(
             children: [
               ElevatedButton(
-                onPressed: onBookRecap,
+                onPressed: bookText.isNotEmpty ? onBookRecap : null,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
+                  backgroundColor:
+                      bookText.isNotEmpty ? AppColors.primary : Colors.grey,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(18),
                   ),
@@ -82,9 +84,9 @@ class BookProgressBar extends StatelessWidget {
                     vertical: 10,
                   ),
                 ),
-                child: const Text(
-                  "Book recap",
-                  style: TextStyle(color: Colors.white),
+                child: Text(
+                  bookText.isNotEmpty ? "Book recap" : "Loading text...",
+                  style: const TextStyle(color: AppColors.white),
                 ),
               ),
               const Spacer(),

@@ -12,8 +12,6 @@
         width: 100vw;
         height: 100vh;
         overflow: hidden;
-        -webkit-tap-highlight-color: transparent;
-        touch-action: manipulation;
         background: var(--bg, white);
         color: var(--text, black);
       }
@@ -32,7 +30,6 @@
         width: 25%;
         z-index: 5;
         background: transparent;
-        -webkit-tap-highlight-color: transparent;
       }
       #prev {
         left: 0;
@@ -41,17 +38,6 @@
         right: 0;
       }
     </style>
-    <script>
-      const _nativeLog = console.log.bind(console);
-      console.log = (...args) => {
-        if (window.Console && window.Console.postMessage)
-          window.Console.postMessage(args.join(" "));
-        _nativeLog(...args);
-      };
-      window.onerror = function (msg, url, line, col, error) {
-        console.log("[ERROR]", msg, url, line, col, error);
-      };
-    </script>
     <script src="epubjs/jszip.min.js"></script>
     <script src="epubjs/epub.min.js"></script>
     <script>
@@ -71,20 +57,18 @@
         });
 
         let startX = 0,
-          startY = 0;
-        const threshold = 50;
-        const viewer = document.getElementById("viewer");
-
+          startY = 0,
+          threshold = 50,
+          viewer = document.getElementById("viewer");
         viewer.addEventListener("touchstart", (e) => {
           const { clientX, clientY } = e.changedTouches[0];
           startX = clientX;
           startY = clientY;
         });
-
         viewer.addEventListener("touchend", (e) => {
           const { clientX, clientY } = e.changedTouches[0];
-          const dx = clientX - startX;
-          const dy = clientY - startY;
+          const dx = clientX - startX,
+            dy = clientY - startY;
           if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > threshold) {
             dx > 0 ? rendition.prev() : rendition.next();
           }
@@ -97,7 +81,6 @@
           out.push({
             label: item.label,
             href: item.href,
-            cfi: item.href ? book.cfiFromHref(item.href) : null,
           });
           if (item.subitems && item.subitems.length) {
             out = out.concat(flattenToc(item.subitems));
@@ -109,7 +92,7 @@
       function sendTocToFlutter() {
         if (!book) return;
         book.loaded.navigation.then((toc) => {
-          const chapters = flattenToc(toc.toc);
+          const chapters = flattenToc(toc.toc || []);
           if (window.Flutter && Flutter.postMessage) {
             Flutter.postMessage(JSON.stringify({ toc: chapters }));
           }
@@ -136,6 +119,102 @@
         return "";
       }
 
+      // Extrage offset-ul de text dintr-un CFI de forma ".../1:47"
+      function getTextOffsetFromCfi(cfi) {
+        const match = /:(\d+)\)?$/.exec(cfi);
+        if (match) {
+          return parseInt(match[1], 10);
+        }
+        return null;
+      }
+
+      // Extrage partea de spine (fișierul) din CFI
+      function extractSpineBaseFromCfi(cfi) {
+        const match = /^epubcfi\((\/[^!]+)!/.exec(cfi);
+        if (match) return match[1];
+        const match2 = /^epubcfi\((\/[^)]+)\)/.exec(cfi);
+        if (match2) return match2[1];
+        return null;
+      }
+
+      function getBookTextUntilCfi(targetCfi) {
+        if (!book) return Promise.resolve("");
+        const spineItems = Array.from({ length: book.spine.length }, (_, i) =>
+          book.spine.get(i)
+        );
+
+        // Găsește indexul secțiunii (fișierului) asociat cu cfiSpineBase
+        function extractSpineBaseFromCfi(cfi) {
+          const match = /^epubcfi\((\/[^!]+)!/.exec(cfi);
+          if (match) return match[1];
+          const match2 = /^epubcfi\((\/[^)]+)\)/.exec(cfi);
+          if (match2) return match2[1];
+          return null;
+        }
+        let cfiSpineBase = extractSpineBaseFromCfi(targetCfi);
+        let sectionIdx = spineItems.findIndex(
+          (section) => section.cfiBase === cfiSpineBase
+        );
+        if (sectionIdx < 0) sectionIdx = 0;
+
+        // Vom extrage toate secțiunile până la ACEST index (inclusiv!)
+        const itemsToProcess = spineItems.slice(0, sectionIdx + 1);
+
+        function getTextOffsetFromCfi(cfi) {
+          const match = /:(\d+)\)?$/.exec(cfi);
+          if (match) return parseInt(match[1], 10);
+          return null;
+        }
+
+        let text = "";
+        return Promise.all(
+          itemsToProcess.map((section, idx) =>
+            section.load(book.load.bind(book)).then((contents) => {
+              let sectionText = "";
+              if (typeof contents === "string") {
+                const doc = new DOMParser().parseFromString(
+                  contents,
+                  "text/html"
+                );
+                sectionText = doc.body?.textContent || "";
+              } else if (contents && typeof contents === "object") {
+                sectionText = contents.textContent || "";
+              }
+              // Pentru ULTIMA secțiune, taie la offset
+              if (idx === itemsToProcess.length - 1) {
+                const offset = getTextOffsetFromCfi(targetCfi);
+                if (offset && sectionText.length > offset) {
+                  sectionText = sectionText.substring(0, offset);
+                }
+              }
+              text += sectionText + "\n";
+              section.unload();
+            })
+          )
+        ).then(() => text);
+      }
+
+      function sendBookTextToFlutter() {
+        if (!lastCfi) return;
+        getBookTextUntilCfi(lastCfi)
+          .then((bookText) => {
+            if (window.Flutter && Flutter.postMessage) {
+              Flutter.postMessage(JSON.stringify({ bookText }));
+            }
+          })
+          .catch((error) => {
+            if (window.Flutter && Flutter.postMessage) {
+              Flutter.postMessage(
+                JSON.stringify({
+                  bookTextError: `Failed to extract book text: ${
+                    error.message || "Unknown error"
+                  }`,
+                })
+              );
+            }
+          });
+      }
+
       function openBookData(b64, savedCfi) {
         book = ePub(b64, { encoding: "base64" });
         book.ready.then(() => {
@@ -147,14 +226,42 @@
               spread: "auto",
             });
             sendTocToFlutter();
+
+            // Extrage textul din carte pentru sumarizare
+            console.log("Starting book text extraction process...");
+            getBookTextUntilCfi(savedCfi)
+              .then((bookText) => {
+                console.log(
+                  `Book text extraction completed. Text length: ${bookText.length}. Text ${bookText}`
+                );
+                if (window.Flutter && Flutter.postMessage) {
+                  console.log("Sending book text to Flutter...");
+                  Flutter.postMessage(JSON.stringify({ bookText }));
+                }
+              })
+              .catch((error) => {
+                console.error("Error extracting book text:", error);
+                // Send error notification to Flutter
+                if (window.Flutter && Flutter.postMessage) {
+                  Flutter.postMessage(
+                    JSON.stringify({
+                      bookTextError: `Failed to extract book text: ${
+                        error.message || "Unknown error"
+                      }`,
+                    })
+                  );
+                }
+              });
+
             const displayCfi =
               typeof savedCfi === "string" && savedCfi.length > 0
                 ? savedCfi
                 : undefined;
+            console.log("Trying to display at: ", displayCfi);
             rendition.display(displayCfi);
             setupNav();
 
-            rendition.on("relocated", async (location) => {
+            rendition.on("relocated", (location) => {
               try {
                 const cfi = location.start.cfi;
                 lastCfi = cfi;
@@ -214,6 +321,7 @@
 
             rendition.on("rendered", (section) => {
               console.log("Rendered section:", section.href);
+              sendTocToFlutter();
             });
 
             rendition.on("error", (error) => {

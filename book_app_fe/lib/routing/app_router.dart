@@ -11,6 +11,7 @@ import 'package:book_app/features/library/presentation/screens/library_screen.da
 import 'package:book_app/features/profile/presentation/screens/profile_screen.dart';
 import 'package:book_app/features/reader/presentation/screens/epub_reader_web_view.dart';
 import 'package:book_app/features/search/presentation/screens/search_page.dart';
+import 'package:book_app/features/summary/presentation/screens/summary_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -42,6 +43,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             bookId: extra['bookId'] as int,
             hasProgress: extra['hasProgress'] as bool? ?? false,
           );
+        },
+      ),
+      GoRoute(
+        path: '/recap',
+        name: 'recap',
+        builder: (context, state) {
+          final String bookText = state.extra as String;
+          return SummaryScreen(bookText: bookText);
         },
       ),
 
