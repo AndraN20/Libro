@@ -1,11 +1,10 @@
 import 'dart:typed_data';
 import 'package:book_app/features/books/presentation/viewmodels/book_provider.dart';
 import 'package:book_app/features/books/presentation/widgets/book_slide.dart';
+import 'package:book_app/features/profile/presentation/widgets/achievement_widget.dart';
 import 'package:book_app/features/profile/presentation/widgets/body.dart';
 import 'package:book_app/features/profile/presentation/widgets/edit_dialog.dart';
 import 'package:book_app/features/profile/presentation/widgets/header.dart';
-import 'package:book_app/features/profile/presentation/widgets/section_title.dart';
-import 'package:book_app/features/profile/presentation/widgets/stats_card.dart';
 import 'package:book_app/features/user/presentation/viewmodels/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -93,7 +92,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 15),
+                  const SizedBox(height: 10),
                   ProfileHeader(
                     onEdit: _showEditDialog,
                     onLogout: () async {
@@ -101,15 +100,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       if (context.mounted) context.go('/login');
                     },
                   ),
-                  const SizedBox(height: 15),
-                  ProfileBody(user: user),
-                  const SizedBox(height: 20),
-                  const StatsCard(),
-                  const SizedBox(height: 30),
-
-                  // 🔥 Section for finished books 🔥
-                  const SectionTitle(title: "Finished Books"),
                   const SizedBox(height: 10),
+                  ProfileBody(user: user),
+                  const SizedBox(height: 10),
+
                   completedAsync.when(
                     loading:
                         () => const Center(
@@ -124,18 +118,21 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           child: Text("Error loading finished books: $e"),
                         ),
                     data: (books) {
-                      if (books.isEmpty) {
-                        return const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 20),
-                          child: Text("You haven't finished any books yet."),
-                        );
-                      }
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Center(
+                            child: AchievementWidget(
+                              completedCount: books.length,
+                            ),
+                          ),
 
-                      return BookSlider(books: books);
+                          const SizedBox(height: 15),
+                          if (books.isNotEmpty) BookSlider(books: books),
+                        ],
+                      );
                     },
                   ),
-
-                  const SizedBox(height: 30),
                 ],
               ),
             );
