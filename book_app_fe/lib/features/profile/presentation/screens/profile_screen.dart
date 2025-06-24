@@ -88,11 +88,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             }
 
             return SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(vertical: 15),
+              padding: const EdgeInsets.symmetric(vertical: 5),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 10),
                   ProfileHeader(
                     onEdit: _showEditDialog,
                     onLogout: () async {

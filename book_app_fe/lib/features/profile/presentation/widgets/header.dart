@@ -22,7 +22,7 @@ class ProfileHeader extends ConsumerWidget {
           const Text(
             'My account',
             style: TextStyle(
-              fontSize: 26,
+              fontSize: 28,
               fontWeight: FontWeight.bold,
               color: AppColors.darkPurple,
             ),

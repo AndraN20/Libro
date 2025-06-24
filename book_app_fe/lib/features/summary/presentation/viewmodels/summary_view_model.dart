@@ -1,24 +1,28 @@
 import 'package:book_app/features/summary/presentation/viewmodels/summary_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class SummaryNotifier extends AsyncNotifier<String> {
-  @override
-  Future<String> build() async => "";
+class SummaryNotifier extends FamilyAsyncNotifier<String, String> {
+  late final String bookText;
 
-  Future<void> summarizeBook(String text) async {
+  @override
+  Future<String> build(String arg) async {
+    bookText = arg;
+    return "";
+  }
+
+  Future<void> summarizeBook() async {
     state = const AsyncLoading();
     try {
-      if (text.isEmpty) {
+      if (bookText.isEmpty) {
         state = AsyncError(
           "No text provided for summarization",
           StackTrace.current,
         );
         return;
       }
-
-      print("Summarizing text of length: ${text.length}");
+      print("Summarizing text of length: ${bookText.length}");
       final repo = ref.read(summaryRepositoryProvider);
-      final summary = await repo.getSummary(text);
+      final summary = await repo.getSummary(bookText);
       state = AsyncData(summary);
     } catch (e, st) {
       print("Error during summarization: $e");
@@ -31,6 +35,7 @@ class SummaryNotifier extends AsyncNotifier<String> {
   }
 }
 
-final summaryNotifierProvider = AsyncNotifierProvider<SummaryNotifier, String>(
-  () => SummaryNotifier(),
-);
+final summaryNotifierProvider =
+    AsyncNotifierProvider.family<SummaryNotifier, String, String>(
+      SummaryNotifier.new,
+    );

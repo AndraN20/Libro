@@ -142,7 +142,7 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
                                       padding: EdgeInsets.only(left: 20),
                                       child: Text("No added books yet."),
                                     )
-                                    : BookList(books: books),
+                                    : BookList(books: books, dismissible: true),
                       ),
                       const SizedBox(height: 32),
                       const Padding(

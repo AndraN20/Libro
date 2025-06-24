@@ -257,6 +257,35 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
                           ),
                 ),
                 const SizedBox(height: 25),
+                if (progress != null && progress!.percentage != null)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 80,
+                      vertical: 4,
+                    ),
+                    child: Column(
+                      children: [
+                        LinearProgressIndicator(
+                          value: progress!.percentage!,
+                          backgroundColor: AppColors.lightPurple,
+                          color: AppColors.darkPurple,
+                          minHeight: 7,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          "${((progress!.percentage ?? 0) * 100).toStringAsFixed(0)}% read",
+                          style: TextStyle(
+                            color: AppColors.darkPurple,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                const SizedBox(height: 25),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Text(

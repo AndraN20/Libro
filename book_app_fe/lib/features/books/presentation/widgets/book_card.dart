@@ -77,9 +77,14 @@ class BookCard extends ConsumerWidget {
                   color: AppColors.primary,
                   size: 40,
                 ),
-                onPressed: () {
-                  context.push('/book-details', extra: book);
-                  ref.invalidate(progressProvider(book.id));
+                onPressed: () async {
+                  final result = await context.push(
+                    '/book-details',
+                    extra: book,
+                  );
+                  if (result == true) {
+                    ref.invalidate(progressProvider(book.id));
+                  }
                 },
               ),
             ],

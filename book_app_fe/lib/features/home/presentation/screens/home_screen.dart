@@ -106,12 +106,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with RouteAware {
         onRefresh: () async {
           ref.invalidate(startedBooksProvider);
           ref.invalidate(booksProvider);
-          await Future.delayed(const Duration(milliseconds: 10));
+          await Future.delayed(const Duration(milliseconds: 5));
           setState(() {});
         },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.symmetric(vertical: 24),
+          padding: const EdgeInsets.symmetric(vertical: 10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -158,10 +158,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with RouteAware {
               ),
 
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 25),
+                padding: const EdgeInsets.symmetric(horizontal: 5),
                 child: Divider(
                   thickness: 1,
-                  height: 4,
+                  height: 1,
                   color: AppColors.darkPurple.withAlpha(51),
                 ),
               ),

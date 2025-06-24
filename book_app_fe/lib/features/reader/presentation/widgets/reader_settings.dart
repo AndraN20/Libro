@@ -74,8 +74,8 @@ class _ReaderSettingsDialogState extends State<ReaderSettingsDialog> {
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               ...[
-                {'color': Colors.white, 'label': 'Alb'},
-                {'color': Colors.black87, 'label': 'Închis'},
+                {'color': Colors.white, 'label': 'White'},
+                {'color': Colors.black87, 'label': 'Dark'},
                 {'color': const Color(0xFFFAF0E6), 'label': 'Sepia'},
               ].map((opt) {
                 final c = opt['color'] as Color;

@@ -47,13 +47,13 @@ class AchievementWidget extends StatelessWidget {
     }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       child: Container(
         decoration: BoxDecoration(
-          color: AppColors.primary,
-          borderRadius: BorderRadius.circular(45),
+          color: AppColors.lightPurple,
+          borderRadius: BorderRadius.circular(20),
         ),
-        padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 35),
+        padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 50),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -63,7 +63,7 @@ class AchievementWidget extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 26,
                 fontWeight: FontWeight.bold,
-                color: AppColors.white,
+                color: AppColors.darkPurple,
                 height: 1.1,
               ),
             ),

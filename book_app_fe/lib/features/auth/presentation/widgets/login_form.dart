@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class LoginForm extends StatelessWidget {
+class LoginForm extends StatefulWidget {
   final TextEditingController emailCtrl;
   final TextEditingController passwordCtrl;
   final VoidCallback onLogin;
@@ -13,13 +13,53 @@ class LoginForm extends StatelessWidget {
   });
 
   @override
+  State<LoginForm> createState() => _LoginFormState();
+}
+
+class _LoginFormState extends State<LoginForm> {
+  bool get isEmailValid => RegExp(
+    r"^[\w\.\-]+@([\w\-]+\.)+[a-zA-Z]{2,}$",
+  ).hasMatch(widget.emailCtrl.text);
+
+  bool get isFormValid =>
+      widget.emailCtrl.text.isNotEmpty &&
+      widget.passwordCtrl.text.isNotEmpty &&
+      isEmailValid;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.emailCtrl.addListener(_onChange);
+    widget.passwordCtrl.addListener(_onChange);
+  }
+
+  @override
+  void dispose() {
+    widget.emailCtrl.removeListener(_onChange);
+    widget.passwordCtrl.removeListener(_onChange);
+    super.dispose();
+  }
+
+  void _onChange() => setState(() {});
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        _buildInput(emailCtrl, 'Email'),
-        _buildInput(passwordCtrl, 'Password', obscure: true),
+        _buildInput(
+          widget.emailCtrl,
+          'Email',
+          error:
+              isEmailValid || widget.emailCtrl.text.isEmpty
+                  ? null
+                  : 'Invalid email',
+        ),
+        _buildInput(widget.passwordCtrl, 'Password', obscure: true),
         const SizedBox(height: 10),
-        ElevatedButton(onPressed: onLogin, child: const Text('Sign In')),
+        ElevatedButton(
+          onPressed: isFormValid ? widget.onLogin : null,
+          child: const Text('Sign In'),
+        ),
       ],
     );
   }
@@ -28,6 +68,7 @@ class LoginForm extends StatelessWidget {
     TextEditingController controller,
     String label, {
     bool obscure = false,
+    String? error,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -44,6 +85,7 @@ class LoginForm extends StatelessWidget {
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(20),
               ),
+              errorText: error,
             ),
           ),
         ),

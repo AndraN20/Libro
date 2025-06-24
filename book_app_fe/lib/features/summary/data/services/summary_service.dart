@@ -84,7 +84,7 @@ class SummaryService {
             {
               "role": "system",
               "content":
-                  "Summarize the following text keeping it concise and clear, but minding the context. Exclude everything that comes before the start of the book and also exclude notes, headers and stylizations. Focus on the main ideas and key points of the story from the book. Also do not include the introduction of Project Gutenberg or anything else.",
+                  "Summarize the following text keeping it concise and clear, but minding the context. Exclude everything that comes before the start of the book and also exclude notes, headers, table of contents and stylizations. Focus on the main ideas and key points of the story from the book. Also do not include the introduction of Project Gutenberg or anything else.",
             },
             {"role": "user", "content": chunk},
           ],
@@ -137,7 +137,7 @@ class SummaryService {
     // 2. Summarize each chunk, max 2 in paralel
     final summaries = await runConcurrent(
       chunks.map((chunk) => () => _summarizeChunk(chunk)).toList(),
-      maxConcurrent: 2,
+      maxConcurrent: 5,
     );
 
     // 3. If only 1 chunk, return directly

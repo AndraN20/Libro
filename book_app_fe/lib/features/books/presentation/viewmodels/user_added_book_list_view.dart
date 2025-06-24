@@ -1,6 +1,7 @@
 import 'package:book_app/features/books/data/repositories/book_repository.dart';
 import 'package:book_app/features/books/domain/models/book.dart';
 import 'package:book_app/features/auth/presentation/viewmodels/auth_provider.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class UserAddedBookListViewModel extends StateNotifier<AsyncValue<List<Book>>> {
@@ -21,7 +22,11 @@ class UserAddedBookListViewModel extends StateNotifier<AsyncValue<List<Book>>> {
       final books = await _repo.getUserAddedBooksByUserId(user.id);
       state = AsyncValue.data(books);
     } catch (e, st) {
-      state = AsyncValue.error(e, st);
+      if (e is DioException && e.response?.statusCode == 404) {
+        state = const AsyncValue.data([]);
+      } else {
+        state = AsyncValue.error(e, st);
+      }
     }
   }
 }
