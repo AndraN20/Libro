@@ -140,9 +140,7 @@ The Flutter Book Reader App addresses several key market needs that make it rele
 
 3. **Cloud Integration**: Modern cloud-based approach allows users to access their library from any device without manual syncing.
 
-4. **AI-Enhanced Reading**: Planned AI summaries feature provides a unique selling point not commonly found in reading apps.
-
-5. **Offline Functionality**: Local caching ensures users can read without constant internet connectivity.
+4. **AI-Enhanced Reading**: AI summaries feature provides a unique selling point not commonly found in reading apps.
 
 6. **Performance Optimization**: Flutter's native performance combined with efficient backend processing ensures a smooth reading experience.
 
