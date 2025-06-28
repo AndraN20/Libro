@@ -15,6 +15,7 @@ This document provides a comprehensive overview of the project architecture, tec
   - **Flutter HTML**: Renders HTML content within Flutter applications, used for displaying EPUB content.
   - **EPUBX**: Library for parsing and rendering EPUB files.
   - **Secure Storage**: For securely storing authentication tokens.
+  - **Figma**: For app design and prototype - [https://www.figma.com/design/sgIwuIfkFwQs5lLd5FPJGz/Book-app?node-id=1-23&t=QDvtaFEUph3prSHs-1]
 
 ### Backend
 
