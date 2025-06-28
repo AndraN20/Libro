@@ -74,3 +74,7 @@ class BookService:
     def get_completed_books_by_user_id(self, user_id: int) -> List[BookDto]:
         books = self.book_repository.get_completed_books_by_user_id(user_id)
         return [to_dto(book) for book in books]
+    
+    def search_books_by_title(self,query:str) -> List[BookDto]:
+        books = self.book_repository.get_books_by_title(query)
+        return [to_dto(book) for book in books]

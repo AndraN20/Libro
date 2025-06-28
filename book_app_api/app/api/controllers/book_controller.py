@@ -35,6 +35,9 @@ def get_completed_books(book_service: BookService = Depends(get_book_service), c
         return book_service.get_completed_books_by_user_id(current_user.id)
     except Exception as e:
         raise HTTPException(status_code=404, detail=str(e))
+@router.get("/books/search", response_model=list[BookDto])
+def search_books_by_title(query: str, book_service: BookService = Depends(get_book_service)):
+    return book_service.search_books_by_title(query)
 
 
 @router.get("/books/{book_id}", response_model=BookDto)
@@ -54,9 +57,6 @@ def get_user_added_books_by_user_id(user_id: int, book_service: BookService = De
         raise HTTPException(status_code=404, detail="no books found for this user")
         
 
-@router.get("/books/search", response_model=list[BookDto])
-def search_books_by_title(query: str, book_service: BookService = Depends(get_book_service)):
-    return book_service.search_books_by_title(query)
 
 @router.get("/books/genre/{genre}", response_model=list[BookDto])
 def get_books_by_genre(genre: str, book_service: BookService = Depends(get_book_service)):

@@ -20,6 +20,15 @@ class ProfileScreen extends ConsumerStatefulWidget {
 }
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final location = GoRouterState.of(context).fullPath ?? '';
+    if (location == '/profile') {
+      ref.invalidate(completedBooksProvider);
+    }
+  }
+
   void _showEditDialog() {
     final user = ref.watch(fetchedUserProvider).asData?.value;
     final usernameCtrl = TextEditingController(text: user?.username ?? '');

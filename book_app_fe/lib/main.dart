@@ -10,7 +10,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load();
 
-  // Clear invalid token at startup
   final token = await SecureStorage.readToken();
   if (token == null || isTokenExpired(token)) {
     await SecureStorage.deleteToken();
