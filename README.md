@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-The Flutter Book Reader App is a cross-platform eBook reading application designed to provide users with a seamless reading experience across multiple devices. The application is built with a modern tech stack featuring Flutter for the frontend and FastAPI for the backend, with cloud storage integration for efficient eBook management.
+The Flutter Book Reader App is built with a modern tech stack featuring Flutter for the frontend and FastAPI for the backend, with cloud storage integration for efficient eBook management.
 
 This document provides a comprehensive overview of the project architecture, technologies used, and key features implemented or planned for implementation.
 
@@ -44,7 +44,7 @@ This document provides a comprehensive overview of the project architecture, tec
 
 - **Authentication**: Secure user registration and login with JWT token-based authentication.
 - **Profile Management**: Users can view and edit their profile information, including username and profile picture.
-- **Reading Statistics**: Track reading habits and progress across the user's library.
+- **Reading Statistics**: Track reading progress across the user's library.
 
 ### Book Management
 
@@ -55,7 +55,7 @@ This document provides a comprehensive overview of the project architecture, tec
 ### Reading Experience
 
 - **EPUB Reader**: Built-in EPUB reader with a clean, customizable interface.
-- **Reading Progress Tracking**: Automatically saves and syncs reading position across devices.
+- **Reading Progress Tracking**: Automatically saves and syncs reading position with the database.
 - **Annotations and Interactions**: Support for highlights, bookmarks, and notes within books.
 
 ### Format Conversion
@@ -68,8 +68,6 @@ This document provides a comprehensive overview of the project architecture, tec
 ### Cloud Integration
 
 - **Cloud Storage**: Books are stored in Google Cloud Storage for efficient access and management.
-- **Local Caching**: Downloaded books are cached locally for offline reading.
-- **Synchronization**: Reading progress and annotations are synchronized between devices.
 
 ## Data Model
 
@@ -100,7 +98,6 @@ This document provides a comprehensive overview of the project architecture, tec
 - Page number and position information
 - Associated text content
 
-## Planned Features
 
 ### AI-Powered Summaries
 
@@ -112,7 +109,6 @@ This document provides a comprehensive overview of the project architecture, tec
 
 - **Customizable Typography**: Font size, type, and spacing adjustments.
 - **Theme Options**: Light, dark, and sepia reading modes.
-- **Reading Statistics**: Detailed analytics on reading habits and progress.
 
 ## Technical Implementation
 
@@ -156,4 +152,4 @@ The Flutter Book Reader App addresses several key market needs that make it rele
 
 The Flutter Book Reader App with FastAPI Backend represents a modern approach to eBook reading applications, combining the power of Flutter's cross-platform capabilities with FastAPI's high-performance backend. The integration with Google Cloud Storage provides scalable and efficient file management, while the planned AI features will offer unique value to users.
 
-This application stands out in the Google Play Store marketplace by addressing common pain points in existing eBook readers, such as format limitations and synchronization issues, while providing an enhanced reading experience through its clean interface and innovative features.
+This application stands out in the Google Play Store marketplace by addressing common pain points in existing eBook readers, such as format limitations, while providing an enhanced reading experience through its clean interface and innovative features.
