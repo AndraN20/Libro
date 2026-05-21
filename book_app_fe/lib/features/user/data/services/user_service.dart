@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
 
 class UserService {
@@ -20,7 +20,7 @@ class UserService {
             profilePicture != null ? base64Encode(profilePicture) : null,
       },
     );
-    print(" RESPONSE ${response.data}");
+    debugPrint(" RESPONSE ${response.data}");
     return response.data;
   }
 

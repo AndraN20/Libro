@@ -21,8 +21,8 @@ class EpubReaderWebView extends ConsumerStatefulWidget {
     required this.bookId,
     this.initialCfi = "",
     this.hasProgress = false,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   ConsumerState<EpubReaderWebView> createState() => _EpubReaderWebViewState();
@@ -69,7 +69,7 @@ class _EpubReaderWebViewState extends ConsumerState<EpubReaderWebView> {
                     setState(() {
                       _bookText = json['bookText'] as String? ?? "";
                     });
-                    print("Book text loaded. Length: ${_bookText.length}");
+                    debugPrint("Book text loaded. Length: ${_bookText.length}");
                   }
                   if (_waitingForRecap) {
                     _waitingForRecap = false;
@@ -122,7 +122,7 @@ class _EpubReaderWebViewState extends ConsumerState<EpubReaderWebView> {
     await _controller.runJavaScript(jsCall);
 
     final bgHex =
-        '#${_bgColor.value.toRadixString(16).padLeft(8, '0').substring(2)}';
+        '#${_bgColor.toARGB32().toRadixString(16).padLeft(8, '0').substring(2)}';
     await _controller.runJavaScript(
       'applySettings($_fontSize, "$_fontFamily", "$bgHex");',
     );
@@ -130,13 +130,13 @@ class _EpubReaderWebViewState extends ConsumerState<EpubReaderWebView> {
 
   void _openChaptersSheet() {
     if (_chapters.isEmpty) {
-      print('TOC gol!');
+      debugPrint('TOC gol!');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Nu s-au putut încărca capitolele.")),
       );
       return;
     } else {
-      print('TOC incarcat: $_chapters');
+      debugPrint('TOC incarcat: $_chapters');
     }
 
     showModalBottomSheet(
@@ -158,14 +158,14 @@ class _EpubReaderWebViewState extends ConsumerState<EpubReaderWebView> {
                 style: const TextStyle(fontSize: 16),
               ),
               onTap: () {
-                print('Capitol selectat: $chapter');
+                debugPrint('Capitol selectat: $chapter');
                 Navigator.pop(context);
                 final href = chapter['href'];
                 if (href != null && href.isNotEmpty) {
                   final hrefJs = jsonEncode(href);
                   _controller.runJavaScript('rendition.display($hrefJs)');
                 } else {
-                  print("Href lipsă sau gol pentru capitolul: $chapter");
+                  debugPrint("Href lipsă sau gol pentru capitolul: $chapter");
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text("Nu există link pentru acest capitol."),
@@ -193,7 +193,7 @@ class _EpubReaderWebViewState extends ConsumerState<EpubReaderWebView> {
               _fontFamily = fontFamily;
               _bgColor = bgColor;
               final bgHex =
-                  '#${bgColor.value.toRadixString(16).padLeft(8, '0').substring(2)}';
+                  '#${bgColor.toARGB32().toRadixString(16).padLeft(8, '0').substring(2)}';
               _controller.runJavaScript(
                 'applySettings($fontSize, "$fontFamily", "$bgHex");',
               );
@@ -235,7 +235,6 @@ class _EpubReaderWebViewState extends ConsumerState<EpubReaderWebView> {
   void _handleBookRecap() async {
     _waitingForRecap = true;
     await _controller.runJavaScript('sendBookTextToFlutter()');
-    // Navigarea va fi declanșată automat când bookText ajunge pe canal
   }
 
   @override
@@ -250,11 +249,12 @@ class _EpubReaderWebViewState extends ConsumerState<EpubReaderWebView> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (didPop) return;
         final saved = await _saveProgress();
         if (context.mounted) context.pop(saved);
-        return false;
       },
       child: Scaffold(
         body: GestureDetector(

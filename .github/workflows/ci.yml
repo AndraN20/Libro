@@ -67,7 +67,7 @@ jobs:
         run: echo "API_URL=http://localhost:8000" > .env
 
       - name: Analyze
-        run: flutter analyze --no-fatal-infos
+        run: flutter analyze
 
       - name: Test
         run: flutter test

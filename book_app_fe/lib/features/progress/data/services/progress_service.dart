@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:book_app/features/progress/domain/models/progress.dart';
 import 'package:dio/dio.dart';
 
@@ -26,7 +27,9 @@ class ProgressService {
 
   Future<void> createProgress(int bookId, Progress progress) async {
     try {
-      print("!!!!!!! progress percentage: ${progress.percentage} !!!!!!!!!!!");
+      debugPrint(
+        "!!!!!!! progress percentage: ${progress.percentage} !!!!!!!!!!!",
+      );
       await dio.post('/progress/$bookId', data: progress.toJson());
     } on DioException catch (e) {
       throw Exception("Failed to create progress: ${e.response?.data}");

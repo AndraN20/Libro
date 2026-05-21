@@ -37,7 +37,7 @@ class _BookSliderState extends ConsumerState<BookSlider> {
       final repo = ref.read(bookRepositoryProvider);
       final detailedBook = await repo.getBook(book.id);
 
-      if (mounted) {
+      if (context.mounted) {
         setState(() => _isLoading = false);
         context.push('/book-details', extra: detailedBook);
       }

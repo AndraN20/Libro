@@ -26,7 +26,7 @@ class BookCard extends ConsumerWidget {
           margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: AppColors.primary.withOpacity(0.05),
+            color: AppColors.primary.withValues(alpha: 0.05),
             borderRadius: BorderRadius.circular(16),
           ),
           child: Row(

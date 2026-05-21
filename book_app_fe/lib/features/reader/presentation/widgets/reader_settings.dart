@@ -1,3 +1,4 @@
+// ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:book_app/core/constants/colors.dart';
 
@@ -99,7 +100,7 @@ class _ReaderSettingsDialogState extends State<ReaderSettingsDialog> {
                   groupValue: _bgColor,
                   onChanged: (v) => setState(() => _bgColor = v!),
                 );
-              }).toList(),
+              }),
               const SizedBox(height: 8),
 
               ElevatedButton(

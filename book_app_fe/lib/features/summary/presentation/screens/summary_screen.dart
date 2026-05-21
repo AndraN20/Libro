@@ -20,14 +20,16 @@ class SummaryScreen extends ConsumerWidget {
             "No book text available. Please wait for the book to fully load and try again.",
           );
         } else {
-          print("Starting summarization with text length: ${bookText.length}");
+          debugPrint(
+            "Starting summarization with text length: ${bookText.length}",
+          );
           notifier.summarizeBook();
         }
       }
     });
 
     return Scaffold(
-      backgroundColor: AppColors.lightPurple.withOpacity(0.18),
+      backgroundColor: AppColors.lightPurple.withValues(alpha: 0.18),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -56,7 +58,7 @@ class SummaryScreen extends ConsumerWidget {
                 (e, _) => Container(
                   padding: const EdgeInsets.all(18),
                   decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.07),
+                    color: Colors.red.withValues(alpha: 0.07),
                     borderRadius: BorderRadius.circular(18),
                   ),
                   child: Text(
@@ -86,7 +88,7 @@ class SummaryScreen extends ConsumerWidget {
                             horizontal: 14,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.primary.withOpacity(0.11),
+                            color: AppColors.primary.withValues(alpha: 0.11),
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: const Text(
@@ -128,6 +130,7 @@ class SummaryScreen extends ConsumerWidget {
                               await Clipboard.setData(
                                 ClipboardData(text: summary),
                               );
+                              if (!context.mounted) return;
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text("Summary copied!"),

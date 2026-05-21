@@ -76,10 +76,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     );
                 ref.invalidate(fetchedUserProvider);
                 setState(() {});
-                if (context.mounted) Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Profile updated successfully')),
-                );
+                if (context.mounted) {
+                  Navigator.of(context).pop();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Profile updated successfully'),
+                    ),
+                  );
+                }
               },
               isLoading: isLoading,
             );

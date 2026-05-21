@@ -13,7 +13,7 @@ class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  _HomeScreenState createState() => _HomeScreenState();
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> with RouteAware {
@@ -79,11 +79,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with RouteAware {
                     body: Center(child: CircularProgressIndicator()),
                   ),
               error: (err, _) {
-                print(">> startedBooksAsync error: $err");
+                debugPrint(">> startedBooksAsync error: $err");
                 return _buildScaffold(fanBooks, []);
               },
               data: (startedBooks) {
-                print(">> startedBooks.length = ${startedBooks.length}");
+                debugPrint(">> startedBooks.length = ${startedBooks.length}");
                 return _buildScaffold(fanBooks, startedBooks);
               },
             );
@@ -97,7 +97,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with RouteAware {
     final hasStartedBooks = startedBooks.isNotEmpty;
     final sectionBooks = hasStartedBooks ? startedBooks : fanBooks;
 
-    print(
+    debugPrint(
       ">> buildScaffold: hasStartedBooks=$hasStartedBooks, sectionBooks=${sectionBooks.length}",
     );
 

@@ -12,7 +12,7 @@ class BookUploadService {
 
   BookUploadService({required this.dio, required this.bookRepository});
 
-  Future<_EpubResult?> convertPdfAndSaveLocally(String pdfPath) async {
+  Future<EpubResult?> convertPdfAndSaveLocally(String pdfPath) async {
     final file = await MultipartFile.fromFile(
       pdfPath,
       filename: pdfPath.split(Platform.pathSeparator).last,
@@ -40,7 +40,7 @@ class BookUploadService {
     await fileOut.writeAsBytes(response.data);
 
     final bookId = int.parse(fileName.split('.').first);
-    return _EpubResult(bookId: bookId, filePath: filePath);
+    return EpubResult(bookId: bookId, filePath: filePath);
   }
 
   Future<Book> fetchBookById(int bookId) async {
@@ -49,9 +49,9 @@ class BookUploadService {
   }
 }
 
-class _EpubResult {
+class EpubResult {
   final int bookId;
   final String filePath;
 
-  _EpubResult({required this.bookId, required this.filePath});
+  EpubResult({required this.bookId, required this.filePath});
 }

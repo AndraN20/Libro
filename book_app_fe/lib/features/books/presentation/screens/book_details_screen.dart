@@ -64,7 +64,9 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
                   Positioned.fill(
                     child: BackdropFilter(
                       filter: ui.ImageFilter.blur(sigmaX: 25, sigmaY: 50),
-                      child: Container(color: Colors.white.withOpacity(0.10)),
+                      child: Container(
+                        color: Colors.white.withValues(alpha: 0.10),
+                      ),
                     ),
                   ),
                   Positioned.fill(
@@ -178,10 +180,8 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
                             final isUserAddedBook = widget.book.userId != null;
                             final fileName =
                                 isUserAddedBook
-                                    ? "${widget.book.id}.epub"
-                                    : "${widget.book.title}-${widget.book.author}"
-                                            .replaceAll(' ', '-') +
-                                        '.epub';
+                                    ? '${widget.book.id}.epub'
+                                    : '${'${widget.book.title}-${widget.book.author}'.replaceAll(' ', '-')}.epub';
 
                             final localPath = "${dir.path}/$fileName";
                             File file = File(localPath);
@@ -201,6 +201,7 @@ class _BookDetailsScreenState extends ConsumerState<BookDetailsScreen> {
 
                             if (!fileExists) {
                               setState(() => isLoading = false);
+                              if (!context.mounted) return;
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text(
