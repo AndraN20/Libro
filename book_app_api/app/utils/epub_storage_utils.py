@@ -1,6 +1,4 @@
 from typing import Optional
-import ebooklib
-from ebooklib import ITEM_DOCUMENT, ITEM_IMAGE
 from ebooklib import epub
 from pathlib import Path
 

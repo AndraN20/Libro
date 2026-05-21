@@ -177,17 +177,14 @@ def handle_text_and_images_pdf(doc) -> Tuple[List[epub.EpubHtml], List]:
         page_dict = preprocessed_doc[page_index]
         elements = []
 
-        # Extrage blocurile de text cu coordonate
         for block in page.get_text("blocks"):
             x0, y0, x1, y1, text, *_ = block
             raw_lines = text.strip().splitlines()
 
-            # Curăță și reconstruiește blocul de text
             cleaned_lines = [clean_line(line) for line in raw_lines if line.strip()]
             cleaned_lines = [line for line in cleaned_lines if line not in common_lines]
             cleaned_lines = merge_hyphenated_words(cleaned_lines)
 
-            # Aplică logică de concatenare
             buffer = ""
             for line in cleaned_lines:
                 if matches_any_pattern(line, PART_PATTERNS + CHAPTER_PATTERNS):
@@ -204,17 +201,14 @@ def handle_text_and_images_pdf(doc) -> Tuple[List[epub.EpubHtml], List]:
             if buffer:
                 elements.append(("text", y0, buffer.strip()))
 
-        # Adaugă imaginile din pagina actuală
         for img in page_dict.get("images", []):
             bbox = img.get("bbox")
             if bbox and len(bbox) == 4:
                 y0 = bbox[1]
                 elements.append(("image", y0, img))
 
-        # Sortează totul după y (vertical)
         elements.sort(key=lambda x: x[1])
 
-        # Construiește conținutul capitolului
         for elem_type, _, content in elements:
             if elem_type == "text":
                 line = content
@@ -260,7 +254,6 @@ def handle_text_and_images_pdf(doc) -> Tuple[List[epub.EpubHtml], List]:
                 except Exception:
                     continue
 
-    # Finalizează ultimul capitol
     chapter, counter = finalize_chapter(chapter_title or "Untitled Chapter", chapter_content, used_files, counter, part_title)
     if chapter:
         chapters.append(chapter)

@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer, HTTPBearer
+from fastapi.security import HTTPBearer
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
 from app.core.database_config import get_db

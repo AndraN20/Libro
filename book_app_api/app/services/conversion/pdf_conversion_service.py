@@ -1,7 +1,4 @@
-import base64
-import io
 import os
-from typing import List
 import uuid
 from app.utils.conversion_utils.epub_builder import add_cover
 from app.utils.conversion_utils.parser import pdf_to_epub_chapters
@@ -11,7 +8,6 @@ from fastapi import UploadFile
 from ebooklib import epub
 import fitz  
 from io import BytesIO
-from PIL import Image
 
 class ConversionService:
     def __init__(self, book_service:BookService):

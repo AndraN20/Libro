@@ -11,7 +11,7 @@ class MainScreen extends StatelessWidget {
     if (location.startsWith('/library')) return 1;
     if (location.startsWith('/search')) return 2;
     if (location.startsWith('/profile')) return 3;
-    return 0; // default to home
+    return 0;
   }
 
   @override

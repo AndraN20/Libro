@@ -1,0 +1,41 @@
+name: Flutter CI
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - "book_app_fe/**"
+      - ".github/workflows/flutter-ci.yml"
+  pull_request:
+    branches: [main, master]
+    paths:
+      - "book_app_fe/**"
+      - ".github/workflows/flutter-ci.yml"
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: book_app_fe
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.x"
+          channel: "stable"
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Create .env for tests
+        run: echo "API_URL=http://localhost:8000" > .env
+
+      - name: Analyze (lint)
+        run: flutter analyze
+
+      - name: Run tests
+        run: flutter test

@@ -1,7 +1,6 @@
-from app.dto.user_dto import UserUpdateDto
 from sqlalchemy.orm import Session
 from app.entities.user import User
-from typing import List, Optional
+from typing import Optional
 
 class UserRepository:
     def __init__(self, db: Session):

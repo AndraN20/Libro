@@ -30,6 +30,22 @@ dependencies = [
 ]
 
 
+[tool.poetry.group.dev.dependencies]
+pytest = ">=8.0"
+httpx = ">=0.27"
+ruff = ">=0.8"
+
+[tool.ruff]
+line-length = 88
+exclude = ["venv/", "migrations/"]
+
+[tool.ruff.lint]
+select = ["F", "E4", "E7", "E9"]
+ignore = ["F821"]  # SQLAlchemy uses string-based forward references in relationships
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"

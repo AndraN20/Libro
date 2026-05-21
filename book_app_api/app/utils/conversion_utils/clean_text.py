@@ -4,9 +4,6 @@ from typing import List, Set
 from collections import Counter
 from app.utils.conversion_utils.patterns import PART_PATTERNS, CHAPTER_PATTERNS, INTRODUCTION_PATTERNS, APPENDIX_PATTERNS, TABLE_OF_CONTENTS_PATTERNS
 from app.utils.conversion_utils.patterns import matches_any_pattern
-import re
-from typing import List
-from collections import Counter
 
 def should_merge(prev: str, curr: str) -> bool:
     # Nu merge dacă linia precedentă e goală sau titlu

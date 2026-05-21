@@ -1,5 +1,7 @@
 import 'package:book_app/core/constants/colors.dart';
+import 'package:book_app/features/books/presentation/viewmodels/book_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 const achievementLevels = [
   {
@@ -35,65 +37,72 @@ const achievementLevels = [
   },
 ];
 
-class AchievementWidget extends StatelessWidget {
-  final int completedCount;
-  const AchievementWidget({super.key, required this.completedCount});
+class AchievementWidget extends ConsumerWidget {
+  const AchievementWidget({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    var achievement = achievementLevels.first;
-    for (final a in achievementLevels) {
-      if (completedCount >= (a['count'] as int)) achievement = a;
-    }
+  Widget build(BuildContext context, WidgetRef ref) {
+    final completedAsync = ref.watch(completedBooksProvider);
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-      child: Container(
-        decoration: BoxDecoration(
-          color: AppColors.lightPurple,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 50),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              achievement['label'] as String,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 26,
-                fontWeight: FontWeight.bold,
-                color: AppColors.darkPurple,
-                height: 1.1,
-              ),
+    return completedAsync.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, _) => Center(child: Text('Error: $e')),
+      data: (books) {
+        final completedCount = books.length;
+        var achievement = achievementLevels.first;
+        for (final a in achievementLevels) {
+          if (completedCount >= (a['count'] as int)) achievement = a;
+        }
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+          child: Container(
+            decoration: BoxDecoration(
+              color: AppColors.lightPurple,
+              borderRadius: BorderRadius.circular(20),
             ),
-            const SizedBox(height: 7),
-            Text(
-              achievement['desc'] as String,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w500,
-                color: AppColors.white,
-                height: 1.15,
-              ),
+            padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 50),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  achievement['label'] as String,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.darkPurple,
+                    height: 1.1,
+                  ),
+                ),
+                const SizedBox(height: 7),
+                Text(
+                  achievement['desc'] as String,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.white,
+                    height: 1.15,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  completedCount == 0
+                      ? "You haven't finished any books yet."
+                      : 'Books finished: $completedCount',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.darkPurple,
+                    height: 1.2,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 10),
-            Text(
-              completedCount == 0
-                  ? "You haven't finished any books yet."
-                  : 'Books finished: $completedCount',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 13.5,
-                fontWeight: FontWeight.w500,
-                color: AppColors.darkPurple,
-                height: 1.2,
-              ),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }

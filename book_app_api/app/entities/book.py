@@ -1,4 +1,4 @@
-from sqlalchemy import ForeignKey, String, Enum, LargeBinary
+from sqlalchemy import String, LargeBinary
 from app.core.database_config import Base
 from sqlalchemy.orm import relationship, mapped_column, Mapped
 from typing import List
@@ -17,5 +17,6 @@ class Book(Base):
     language: Mapped[str] = mapped_column(nullable=True)
     user_id: Mapped[int] = mapped_column(nullable=True)
 
-    progress: Mapped[List["Progress"]] = relationship("Progress",back_populates="book",lazy="select")
+    progress: Mapped[List["Progress"]] = relationship("Progress",back_populates="book",cascade="all, delete-orphan",
+                                                      passive_deletes=True,lazy="select")
     

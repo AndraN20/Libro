@@ -1,7 +1,6 @@
 
 from app.dto.progress_dto import ProgressCreateDto, ProgressDto
 from app.entities.progress import Progress
-from app.entities.enums.status_enum import StatusEnum
 def to_dto(progress: Progress) -> ProgressDto:
     return ProgressDto(
         book_id=progress.book_id,

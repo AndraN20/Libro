@@ -20,13 +20,22 @@ class ProfileScreen extends ConsumerStatefulWidget {
 }
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
+  bool _didInvalidate = false;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final location = GoRouterState.of(context).fullPath ?? '';
-    if (location == '/profile') {
+    if (location == '/profile' && !_didInvalidate) {
       ref.invalidate(completedBooksProvider);
+      _didInvalidate = true;
     }
+  }
+
+  @override
+  void dispose() {
+    _didInvalidate = false;
+    super.dispose();
   }
 
   void _showEditDialog() {
@@ -129,11 +138,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Center(
-                            child: AchievementWidget(
-                              completedCount: books.length,
-                            ),
-                          ),
+                          Center(child: AchievementWidget()),
 
                           const SizedBox(height: 15),
                           if (books.isNotEmpty) BookSlider(books: books),

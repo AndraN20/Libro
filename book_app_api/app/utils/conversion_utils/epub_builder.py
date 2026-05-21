@@ -1,10 +1,8 @@
-import io
 from app.utils.conversion_utils.cover_utils import extract_cover
 from ebooklib import epub
 from typing import List, Set, Tuple
 import re
 import os
-from PIL import Image
 
 
 def sanitize_filename(title: str) -> str:

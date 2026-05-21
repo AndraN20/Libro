@@ -2,7 +2,6 @@ from app.api.controllers import book_controller, interaction_controller, progres
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api import auth_controller, conversion, health_check
-from app.core.database_config import Base, engine 
 from app.services.gcs.scheduler_service import start_scheduler
 import uvicorn
 

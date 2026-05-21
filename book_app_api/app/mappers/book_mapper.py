@@ -19,7 +19,7 @@ def to_dto(book:Book) -> BookDto:
         user_id = book.user_id
     )
 
-def to_entity(book_dto: BookDto) -> Book:
+def to_entity_from_dto(book_dto: BookDto) -> Book:
     return Book(
         id = book_dto.id,
         title = book_dto.title,
@@ -27,7 +27,7 @@ def to_entity(book_dto: BookDto) -> Book:
         date = book_dto.date,
         genre = book_dto.genre,
         description = book_dto.description,
-        cover_data = base64.b64decode(book_dto.cover_base64) if book_dto.coperta_base64 else None,
+        cover_data = base64.b64decode(book_dto.cover_base64) if book_dto.cover_base64 else None,
         language = book_dto.language,
         book_url = book_dto.book_url,
         user_id = book_dto.user_id

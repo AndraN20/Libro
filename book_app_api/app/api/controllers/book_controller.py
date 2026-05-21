@@ -71,7 +71,7 @@ def get_signed_url(book_id: int, book_service: BookService = Depends(get_book_se
 @router.delete("/books/{book_id}")
 def delete_book(book_id: int, book_service: BookService = Depends(get_book_service)):
     try:
-        deleted_book = book_service.delete_book(book_id)
+        book_service.delete_book(book_id)
         return {"message": "Book deleted successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

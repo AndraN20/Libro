@@ -2,7 +2,6 @@ from pydantic import Field
 from datetime import datetime
 from app.entities.enums.status_enum import StatusEnum
 from pydantic import BaseModel, ConfigDict
-from typing import Optional
 
 class ProgressUpdateDto(BaseModel):
     epub_cfi: str | None = None

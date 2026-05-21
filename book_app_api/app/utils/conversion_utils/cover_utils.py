@@ -1,7 +1,6 @@
 from PIL import Image
 import io
 import numpy as np
-from PyPDF2 import PdfReader
 
 
 def get_cover_from_metadata(doc):

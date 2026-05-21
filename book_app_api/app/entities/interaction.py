@@ -1,4 +1,4 @@
-from sqlalchemy import ForeignKey, Enum, ForeignKeyConstraint
+from sqlalchemy import Enum, ForeignKeyConstraint
 from app.core.database_config import Base
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.entities.enums.annotation_type import AnnotationType
