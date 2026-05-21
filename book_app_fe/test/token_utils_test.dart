@@ -15,7 +15,7 @@ void main() {
   });
 
   group('parseJwt', () {
-    String _makeToken(Map<String, dynamic> payload) {
+    String makeToken(Map<String, dynamic> payload) {
       const header = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9';
       final payloadJson = json.encode(payload);
       final payloadEncoded = base64Url
@@ -25,13 +25,13 @@ void main() {
     }
 
     test('parses sub field from payload', () {
-      final token = _makeToken({'sub': '42', 'exp': 9999999999});
+      final token = makeToken({'sub': '42', 'exp': 9999999999});
       final claims = parseJwt(token);
       expect(claims['sub'], '42');
     });
 
     test('parses multiple fields from payload', () {
-      final token = _makeToken({'sub': '7', 'exp': 9999999999, 'role': 'user'});
+      final token = makeToken({'sub': '7', 'exp': 9999999999, 'role': 'user'});
       final claims = parseJwt(token);
       expect(claims['sub'], '7');
       expect(claims['role'], 'user');
